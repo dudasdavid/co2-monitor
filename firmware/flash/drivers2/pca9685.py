@@ -17,16 +17,26 @@ class PCA9685:
     def reset(self):
         self._write(0x00, 0x00) # Mode1
 
-    def freq(self, freq=None):
+    def freq(self, freq=None, osc=25000000):
         if freq is None:
-            return int(25000000.0 / 4096 / (self._read(0xfe) - 0.5))
-        prescale = int(25000000.0 / 4096.0 / freq + 0.5)
-        old_mode = self._read(0x00) # Mode 1
-        self._write(0x00, (old_mode & 0x7F) | 0x10) # Mode 1, sleep
-        self._write(0xfe, prescale) # Prescale
-        self._write(0x00, old_mode) # Mode 1
-        time.sleep_us(5)
-        self._write(0x00, old_mode | 0xa1) # Mode 1, autoincrement on
+            prescale = self._read(0xFE)
+            return int(osc / (4096 * (prescale + 1)))
+
+        # Compute prescale correctly
+        prescale = int(round(osc / (4096 * freq) - 1))
+
+        # Clamp to chip limits
+        if prescale < 3:
+            prescale = 3
+        elif prescale > 255:
+            prescale = 255
+
+        old_mode = self._read(0x00)              # MODE1
+        self._write(0x00, (old_mode & 0x7F) | 0x10)  # sleep=1
+        self._write(0xFE, prescale)              # PRESCALE
+        self._write(0x00, old_mode & ~0x10)      # sleep=0
+        time.sleep_us(500)                       # let oscillator stabilize
+        self._write(0x00, (old_mode & ~0x10) | 0x80 | 0x20)  # RESTART=1, AI=1
 
     def pwm(self, index, on=None, off=None):
         if on is None or off is None:
