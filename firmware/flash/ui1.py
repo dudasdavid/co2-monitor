@@ -285,7 +285,7 @@ def create_system_table():
 
     # 2 columns and 15 rows
     table.set_col_cnt(2)
-    table.set_row_cnt(18)
+    table.set_row_cnt(22)
 
     table.set_col_width(0, 180)
     table.set_col_width(1, 250)
@@ -320,8 +320,11 @@ def create_system_table():
     table.set_cell_value(14, 0, "i2c DS3231")
     table.set_cell_value(15, 0, "Unknown devices")
     table.set_cell_value(16, 0, "USB voltage")
-    table.set_cell_value(17, 0, "Battery voltage")
-    table.set_cell_value(18, 0, "Battery %") 
+    table.set_cell_value(17, 0, "5V voltage")
+    table.set_cell_value(18, 0, "Battery voltage")
+    table.set_cell_value(19, 0, "Battery %")
+    table.set_cell_value(20, 0, "Charging")
+    table.set_cell_value(21, 0, "LED feedback")
 
     # --- LVGL task: pull Python vars & update table ---
     def table_update_cb(task):
@@ -351,8 +354,11 @@ def create_system_table():
         table.set_cell_value(14, 1, "DS3231 {} at at 0x53".format(var.system_data.i2c_status_ds3231))
         table.set_cell_value(15, 1, "Uknown devices at {}".format(str(var.system_data.i2c_status_unknown)))
         table.set_cell_value(16, 1, "{:.2f}".format(var.system_data.usb_volt))
-        table.set_cell_value(17, 1, "{:.2f}".format(var.system_data.bat_volt))
-        table.set_cell_value(18, 1, "{}".format(int(var.system_data.bat_percentage)))
+        table.set_cell_value(17, 1, "{:.2f}".format(var.system_data.dcdc_volt))
+        table.set_cell_value(18, 1, "{:.2f}".format(var.system_data.bat_volt))
+        table.set_cell_value(19, 1, "{}".format(int(var.system_data.bat_percentage)))
+        table.set_cell_value(20, 1, "{}".format(var.system_data.charging))
+        table.set_cell_value(21, 1, "{}".format(var.system_data.feedback_led))
 
 
     # --- Update table in every 1000ms ---

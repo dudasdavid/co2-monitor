@@ -39,7 +39,10 @@ class SystemData:
         self.i2c_status_unknown = [0x69]
         self.usb_volt = 4.85
         self.bat_volt = 3.8
+        self.dcdc_volt = 4.69
         self.bat_percentage = 69
+        self.charging = False
+        self.feedback_led = "green"
 
 
 aht21_temp_offset = 0
@@ -76,10 +79,12 @@ btn_left = None
 btn_right = None
 
 logger_paused = False
-logger_debug = []
-logger_info = []
-logger_error = ["kaka"]
-logger_warning = []
+logger_debug = ["empty"]
+logger_info = ["empty"]
+logger_error = ["empty"]
+logger_warning = ["empty"]
 
 logger_label_prev = ""
 logger_current_view = logger_debug
+
+
