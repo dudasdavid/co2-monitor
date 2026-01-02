@@ -109,7 +109,7 @@ class DRV2605:
         self._write_u8(_DRV2605_REG_CONTROL3, control3 | 0x20)
         # Default to internal trigger mode and TS2200 A library.
         self.mode = MODE_INTTRIG
-        self.library = LIBRARY_TS2200A
+        self.library = LIBRARY_TS2200B
         self._sequence = _DRV2605_Sequence(self)
         
         self._write_u8(_DRV2605_REG_WAVESEQ1, 0x00)
