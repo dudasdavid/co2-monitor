@@ -72,7 +72,7 @@ async def main():
     asyncio.create_task(backlight_task(0.4))
     asyncio.create_task(storage_task(3))
     asyncio.create_task(history_task(2))
-    asyncio.create_task(adc_task(2))
+    asyncio.create_task(adc_task(0.5))
 
     # 3) main loop can do supervision / LEDs / watchdog
     led = machine.Pin("LED", machine.Pin.OUT)

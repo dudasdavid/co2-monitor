@@ -127,4 +127,6 @@ async def adc_task(period = 1.0):
         else:
             var.system_data.charging = False
     
+        var.system_data.adc_task_timestamp = utime.time()
+    
         await asyncio.sleep(period)
