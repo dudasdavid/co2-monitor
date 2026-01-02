@@ -8,6 +8,8 @@ from drivers import ahtx0 as athx0_driver
 from drivers import scd4x as scd4x_driver
 from drivers import ds3231 as ds3231_driver
 from drivers import bmp280 as bmp280_driver
+from drivers2 import pca9685 as pca9685_driver
+from drivers2 import drv2605 as drv2605_driver
 
 # ---- Global variables ----
 import shared_variables as var
@@ -91,10 +93,92 @@ async def i2c_task(period = 1.0):
     scd4x.set_ambient_pressure(init_pressure)
     log.info("[SCD41] pressure initialized to", init_pressure, "hPa")
     scd4x.start_periodic_measurement()
+    
+    # Initialize PCA9685 PWM driver
+    pca9685 = pca9685_driver.PCA9685(i2c1)
+    pca9685.freq(1000)
+    pca9685.duty(0, 0)
+    pca9685.duty(1, 0)
+    pca9685.duty(2, 0)
 
+    # Initialize DRV2605 haptic driver
+    drv2605 = drv2605_driver.DRV2605(i2c1)
+    drv2605.set_waveform(52)
+    drv2605.play()                     
+    #drv2605.stop()
 
     #Run
     while True:
+        
+        devices = i2c1.scan()
+        var.system_data.i2c_devices = devices
+        
+        # AHT21
+        try:
+            idx = devices.index(0x38)
+            devices.pop(idx)
+            var.system_data.i2c_status_aht21 = "AHT21 is online at 0x38"
+        except:
+            var.system_data.i2c_status_aht21 = "AHT21 is NOT found at 0x38"
+
+        # BMP280
+        try:
+            idx = devices.index(0x76)
+            devices.pop(idx)
+            var.system_data.i2c_status_bmp280 = "BMP280 is online at 0x76"
+        except:
+            var.system_data.i2c_status_bmp280 = "BMP280 is NOT found at 0x76"
+        
+        # DS3231
+        try:
+            idx = devices.index(0x68)
+            devices.pop(idx)
+            var.system_data.i2c_status_ds3231 = "DS3231 is online at 0x68"
+        except:
+            var.system_data.i2c_status_ds3231 = "DS3231 is NOT found at 0x68"
+        
+        # ENS160
+        try:
+            idx = devices.index(0x53)
+            devices.pop(idx)
+            var.system_data.i2c_status_ens160 = "ENS160 is online at 0x53"
+        except:
+            var.system_data.i2c_status_ens160 = "ENS160 is NOT found at 0x53"
+        
+        # SCD41
+        try:
+            idx = devices.index(0x62)
+            devices.pop(idx)
+            var.system_data.i2c_status_scd41 = "SCD41 is online at 0x62"
+        except:
+            var.system_data.i2c_status_scd41 = "SCD41 is NOT found at 0x62"
+        
+        # VEML7700
+        try:
+            idx = devices.index(0x10)
+            devices.pop(idx)
+            var.system_data.i2c_status_veml7700 = "VEML7700 is online at 0x10"
+        except:
+            var.system_data.i2c_status_veml7700 = "VEML7700 is NOT found at 0x10"
+
+        # DRV2605
+        try:
+            idx = devices.index(0x5A)
+            devices.pop(idx)
+            var.system_data.i2c_status_drv2605 = "DRV2605 is online at 0x5A"
+        except:
+            var.system_data.i2c_status_drv2605 = "DRV2605 is NOT found at 0x5A"
+
+        # PCA9685
+        try:
+            idx = devices.index(0x40)
+            devices.pop(idx)
+            var.system_data.i2c_status_pca9685 = "PCA9685 is online at 0x40"
+        except:
+            var.system_data.i2c_status_pca9685 = "PCA9685 is NOT found at 0x40"
+            
+        var.system_data.i2c_status_unknown = devices
+
         lux = veml7700_sensor.read_lux()
         log.debug("[VEML7700] Lux", lux)
         var.sensor_data.lux_veml7700 = lux if lux is not None else 0
@@ -108,14 +192,14 @@ async def i2c_task(period = 1.0):
         
         aqi, tvoc, eco2, temp, rh, eco2_rating, tvoc_rating = ens160_sensor.read_air_quality()
 
-        log.debug("[ENS160] temperature:", temp)
-        log.debug("[ENS160] humidity:", rh)
+        #log.debug("[ENS160] temperature:", temp)
+        #log.debug("[ENS160] humidity:", rh)
         log.debug("[ENS160] AQI:", aqi)
         log.debug("[ENS160] TVOC:", tvoc, "-", tvoc_rating)
         log.debug("[ENS160] eCO2:", eco2, "-", eco2_rating)
         
-        var.sensor_data.temp_ens160 = temp if temp is not None else 0
-        var.sensor_data.humidity_ens160 = rh if rh is not None else 0
+        #var.sensor_data.temp_ens160 = temp if temp is not None else 0
+        #var.sensor_data.humidity_ens160 = rh if rh is not None else 0
         var.sensor_data.aqi_ens160 = aqi if aqi is not None else 0
         var.sensor_data.tvoc_ens160 = tvoc if tvoc is not None else 0
         var.sensor_data.tvoc_rating_ens160 = tvoc_rating if tvoc_rating is not None else "N/A"
@@ -132,6 +216,15 @@ async def i2c_task(period = 1.0):
         var.sensor_data.temp_scd41 = temp if temp is not None else 0
         var.sensor_data.humidity_scd41 = rh if rh is not None else 0
         
+        if co2 == None:
+            var.system_data.feedback_led = "off"
+        elif co2 < 1000:
+            var.system_data.feedback_led = "green"
+        elif co2 < 1500:
+            var.system_data.feedback_led = "yellow"
+        else:
+            var.system_data.feedback_led = "red"
+        
         var.system_data.time_rtc = ds3231.datetime()
         log.debug("[DS3231] RTC datetime:", var.system_data.time_rtc)
         
@@ -145,5 +238,32 @@ async def i2c_task(period = 1.0):
         log.debug("[BMP280] temperature:", temp)
         var.sensor_data.pressure_bmp280 = pressure if pressure is not None else 0
         var.sensor_data.temp_bmp280 = temp if temp is not None else 0
+        
+        if var.system_data.feedback_led == "green":
+            pca9685.duty(0, 0)
+            pca9685.duty(1, 4000)
+            pca9685.duty(2, 0)
+        elif var.system_data.feedback_led == "yellow":
+            pca9685.duty(0, 0)
+            pca9685.duty(1, 1000)
+            pca9685.duty(2, 4000)
+        elif var.system_data.feedback_led == "red":
+            pca9685.duty(0, 0)
+            pca9685.duty(1, 0)
+            pca9685.duty(2, 4000)
+        elif var.system_data.feedback_led == "blue":
+            pca9685.duty(0, 4000)
+            pca9685.duty(1, 0)
+            pca9685.duty(2, 0)
+        elif var.system_data.feedback_led == "off":
+            pca9685.duty(0, 0)
+            pca9685.duty(1, 0)
+            pca9685.duty(2, 0)
+        else: # Default white
+            pca9685.duty(0, 1000)
+            pca9685.duty(1, 1000)
+            pca9685.duty(2, 1000)
+        
+        var.system_data.i2c_task_timestamp = time.time()
         
         await asyncio.sleep(period)
