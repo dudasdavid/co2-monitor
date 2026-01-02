@@ -129,7 +129,7 @@ def create_sensor_table():
 
     # 2 columns and 15 rows
     table.set_col_cnt(2)
-    table.set_row_cnt(13)
+    table.set_row_cnt(11)
 
     table.set_col_width(0, 250)
     table.set_col_width(1, 180)
@@ -149,17 +149,15 @@ def create_sensor_table():
     # Static labels in first column
     table.set_cell_value(0, 0, "Temperature AHT21 [°C]")
     table.set_cell_value(1, 0, "Temperature SCD41 [°C]")
-    table.set_cell_value(2, 0, "Temperature ENS160 [°C]")
-    table.set_cell_value(3, 0, "Temperature BMP280 [°C]")
-    table.set_cell_value(4, 0, "Humidity AHT21 [%]")
-    table.set_cell_value(5, 0, "Humidity SCD41 [%]")
-    table.set_cell_value(6, 0, "Humidity ENS160 [%]")
-    table.set_cell_value(7, 0, "CO2 [ppm]")
-    table.set_cell_value(8, 0, "eCO2 ENS160 [ppm]")
-    table.set_cell_value(9, 0, "TVOC [ppb]")
-    table.set_cell_value(10, 0, "AQI")
-    table.set_cell_value(11, 0, "Pressure [hPa]")
-    table.set_cell_value(12, 0, "Lux")
+    table.set_cell_value(2, 0, "Temperature BMP280 [°C]")
+    table.set_cell_value(3, 0, "Humidity AHT21 [%]")
+    table.set_cell_value(4, 0, "Humidity SCD41 [%]")
+    table.set_cell_value(5, 0, "CO2 [ppm]")
+    table.set_cell_value(6, 0, "eCO2 ENS160 [ppm]")
+    table.set_cell_value(7, 0, "TVOC [ppb]")
+    table.set_cell_value(8, 0, "AQI")
+    table.set_cell_value(9, 0, "Pressure [hPa]")
+    table.set_cell_value(10, 0, "Lux")
 
 
     # --- LVGL task: pull Python vars & update table ---
@@ -167,19 +165,15 @@ def create_sensor_table():
         # Read your Python variables here
         table.set_cell_value(0, 1, "{:.1f}".format(var.sensor_data.temp_aht21))
         table.set_cell_value(1, 1, "{:.1f}".format(var.sensor_data.temp_scd41))
-        table.set_cell_value(2, 1, "{:.1f}".format(var.sensor_data.temp_ens160))
-        table.set_cell_value(3, 1, "{:.1f}".format(var.sensor_data.temp_bmp280))
-        table.set_cell_value(4, 1, "{:.1f}".format(var.sensor_data.humidity_aht21))
-        table.set_cell_value(5, 1, "{:.1f}".format(var.sensor_data.humidity_scd41))
-        table.set_cell_value(6, 1, "{:.1f}".format(var.sensor_data.humidity_ens160))
-        table.set_cell_value(7, 1, "{}".format(int(var.sensor_data.co2_scd41)))
-        table.set_cell_value(8, 1, "{}".format(int(var.sensor_data.eco2_ens160)))
-        table.set_cell_value(9, 1, "{}".format(int(var.sensor_data.tvoc_ens160)))
-        table.set_cell_value(10, 1, "{}".format(int(var.sensor_data.aqi_ens160)))
-        table.set_cell_value(11, 1, "{}".format(int(var.sensor_data.pressure_bmp280)))
-        table.set_cell_value(12, 1, "{:.2f}".format(var.sensor_data.lux_veml7700))
-
-
+        table.set_cell_value(2, 1, "{:.1f}".format(var.sensor_data.temp_bmp280))
+        table.set_cell_value(3, 1, "{:.1f}".format(var.sensor_data.humidity_aht21))
+        table.set_cell_value(4, 1, "{:.1f}".format(var.sensor_data.humidity_scd41))
+        table.set_cell_value(5, 1, "{}".format(int(var.sensor_data.co2_scd41)))
+        table.set_cell_value(6, 1, "{}".format(int(var.sensor_data.eco2_ens160)))
+        table.set_cell_value(7, 1, "{}".format(int(var.sensor_data.tvoc_ens160)))
+        table.set_cell_value(8, 1, "{}".format(int(var.sensor_data.aqi_ens160)))
+        table.set_cell_value(9, 1, "{}".format(int(var.sensor_data.pressure_bmp280)))
+        table.set_cell_value(10, 1, "{:.2f}".format(var.sensor_data.lux_veml7700))
 
     # --- Update table in every 500ms ---
     lv.task_create(table_update_cb, 500, lv.TASK_PRIO.LOW, None)
@@ -285,11 +279,11 @@ def create_system_table():
 
     # 2 columns and 15 rows
     table.set_col_cnt(2)
-    table.set_row_cnt(22)
+    table.set_row_cnt(31)
 
     table.set_col_width(0, 180)
     table.set_col_width(1, 250)
-
+    
     '''
     # Static labels in first row
     table.set_cell_value(0, 0, "System")
@@ -318,17 +312,26 @@ def create_system_table():
     table.set_cell_value(12, 0, "i2c BMP280")
     table.set_cell_value(13, 0, "i2c VEML7700")
     table.set_cell_value(14, 0, "i2c DS3231")
-    table.set_cell_value(15, 0, "Unknown devices")
-    table.set_cell_value(16, 0, "USB voltage")
-    table.set_cell_value(17, 0, "5V voltage")
-    table.set_cell_value(18, 0, "Battery voltage")
-    table.set_cell_value(19, 0, "Battery %")
-    table.set_cell_value(20, 0, "Charging")
-    table.set_cell_value(21, 0, "LED feedback")
+    table.set_cell_value(15, 0, "i2c DRV2605")
+    table.set_cell_value(16, 0, "i2c PCA9685")
+    table.set_cell_value(17, 0, "Unknown devices")
+    table.set_cell_value(18, 0, "USB voltage")
+    table.set_cell_value(19, 0, "5V voltage")
+    table.set_cell_value(20, 0, "Battery voltage")
+    table.set_cell_value(21, 0, "Battery %")
+    table.set_cell_value(22, 0, "Charging")
+    table.set_cell_value(23, 0, "LED feedback")
+    table.set_cell_value(24, 0, "ADC task")
+    table.set_cell_value(25, 0, "Backlight task")
+    table.set_cell_value(26, 0, "History task")
+    table.set_cell_value(27, 0, "i2c task")
+    table.set_cell_value(28, 0, "Idle task")
+    table.set_cell_value(29, 0, "Serial task")
+    table.set_cell_value(30, 0, "Storage task")
 
     # --- LVGL task: pull Python vars & update table ---
     def table_update_cb(task):
-        # Read your Python variables here
+        # Read your Python variables here     
         table.set_cell_value(0, 1, var.system_data.status_wifi)
         dt = var.system_data.time_ntp
         if dt is not None and type(dt) == tuple:
@@ -346,19 +349,32 @@ def create_system_table():
         table.set_cell_value(6, 1, "{}kB / {}kB".format(int(var.system_data.used_heap), int(var.system_data.total_heap)))
         table.set_cell_value(7, 1, "{:.2f}".format(var.sensor_data.lux_veml7700)) # This comes from sensor data!
         table.set_cell_value(8, 1, "{} / 1000".format(int(var.system_data.bl_duty_percent)))
-        table.set_cell_value(9, 1, "SCD41 {} at 0x62".format(var.system_data.i2c_status_scd41))
-        table.set_cell_value(10, 1, "AHT21 {} at 0x38".format(var.system_data.i2c_status_aht21))
-        table.set_cell_value(11, 1, "ENS160 {} at 0x53".format(var.system_data.i2c_status_ens160))
-        table.set_cell_value(12, 1, "BMP280 {} at 0x76".format(var.system_data.i2c_status_bmp280))
-        table.set_cell_value(13, 1, "VEML7700 {} at 0x11".format(var.system_data.i2c_status_veml7700))
-        table.set_cell_value(14, 1, "DS3231 {} at at 0x53".format(var.system_data.i2c_status_ds3231))
-        table.set_cell_value(15, 1, "Uknown devices at {}".format(str(var.system_data.i2c_status_unknown)))
-        table.set_cell_value(16, 1, "{:.2f}".format(var.system_data.usb_volt))
-        table.set_cell_value(17, 1, "{:.2f}".format(var.system_data.dcdc_volt))
-        table.set_cell_value(18, 1, "{:.2f}".format(var.system_data.bat_volt))
-        table.set_cell_value(19, 1, "{}".format(int(var.system_data.bat_percentage)))
-        table.set_cell_value(20, 1, "{}".format(var.system_data.charging))
-        table.set_cell_value(21, 1, "{}".format(var.system_data.feedback_led))
+        table.set_cell_value(9, 1, "{}".format(var.system_data.i2c_status_scd41))
+        table.set_cell_value(10, 1, "{}".format(var.system_data.i2c_status_aht21))
+        table.set_cell_value(11, 1, "{}".format(var.system_data.i2c_status_ens160))
+        table.set_cell_value(12, 1, "{}".format(var.system_data.i2c_status_bmp280))
+        table.set_cell_value(13, 1, "{}".format(var.system_data.i2c_status_veml7700))
+        table.set_cell_value(14, 1, "{}".format(var.system_data.i2c_status_ds3231))
+        table.set_cell_value(15, 1, "{}".format(var.system_data.i2c_status_drv2605))
+        table.set_cell_value(16, 1, "{}".format(var.system_data.i2c_status_pca9685))
+        if len(var.system_data.i2c_status_unknown) > 0:
+            hex_list = ["0x{:02X}".format(v) for v in var.system_data.i2c_status_unknown]
+            table.set_cell_value(17, 1, "Unknown device(s) at {}".format(", ".join(hex_list)))
+        else:
+            table.set_cell_value(17, 1, "There are no unknown devices.")
+        table.set_cell_value(18, 1, "{:.2f}".format(var.system_data.usb_volt))
+        table.set_cell_value(19, 1, "{:.2f}".format(var.system_data.dcdc_volt))
+        table.set_cell_value(20, 1, "{:.2f}".format(var.system_data.bat_volt))
+        table.set_cell_value(21, 1, "{}".format(int(var.system_data.bat_percentage)))
+        table.set_cell_value(22, 1, "{}".format(var.system_data.charging))
+        table.set_cell_value(23, 1, "{}".format(var.system_data.feedback_led))
+        table.set_cell_value(24, 1, "{}".format(var.system_data.adc_task_timestamp))
+        table.set_cell_value(25, 1, "{}".format(var.system_data.backlight_task_timestamp))
+        table.set_cell_value(26, 1, "{}".format(var.system_data.history_task_timestamp))
+        table.set_cell_value(27, 1, "{}".format(var.system_data.i2c_task_timestamp))
+        table.set_cell_value(28, 1, "{}".format(var.system_data.idle_task_timestamp))
+        table.set_cell_value(29, 1, "{}".format(var.system_data.serial_task_timestamp))
+        table.set_cell_value(30, 1, "{}".format(var.system_data.storage_task_timestamp))
 
 
     # --- Update table in every 1000ms ---
