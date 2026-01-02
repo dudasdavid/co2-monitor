@@ -113,6 +113,32 @@ def _ensure_log_file(path, log):
     except Exception as e:
         log.error("Failed to create log file:", csv, e)
 
+def is_sd_mounted(path="/sd"):
+    try:
+        os.statvfs(path)
+        return True
+    except OSError:
+        return False
+
+def sd_card_recovery():
+
+    if is_sd_mounted("/sd"):
+        os.umount("/sd")
+
+    sd = pyb.SDCard()
+    sd.power(False)
+    time.sleep(1)
+    sd.power(True)
+    time.sleep(1)
+    try:
+        os.mount(sd, '/sd')
+        log.warning("SD card recovery was done!")
+        var.system_data.status_sd = "Online"
+    except Exception as e:
+        log.error("SD card recovery failed!", e)
+        var.system_data.status_sd = "Offline"
+        
+
 
 def _append_sensor_row(path, limit_rows, log):
     """
@@ -194,6 +220,8 @@ def _append_sensor_row(path, limit_rows, log):
         
     except Exception as e:
         log.error("Failed to append sensor row:", e)
+        
+        sd_card_recovery()
 
 def _load_co2_history_from_log(path, log):
     """
@@ -281,13 +309,6 @@ def _load_co2_history_from_log(path, log):
     var.scd41_co2_history = history
     log.info("Restored CO2 history from log, length:", len(history))
 
-def is_sd_mounted(path="/sd"):
-    try:
-        os.statvfs(path)
-        return True
-    except OSError:
-        return False
-
 async def storage_task(period = 1.0):
     #Init
     # Get file system stats
@@ -354,6 +375,11 @@ async def storage_task(period = 1.0):
         var.system_data.total_space_sd = 0
         var.system_data.used_space_sd = 0
         log.error("Failed to mount SD card:", e)
+        
+        sd_card_recovery()
+        
+        if is_sd_mounted("/sd"):
+            sd_mounted = True
 
 
     log_file_path = "/sd/sensor_logs"
@@ -376,10 +402,11 @@ async def storage_task(period = 1.0):
     while True:
         #log.debug("Task is running")      
 
-        if sd_mounted:
-            elapsed += period
-            if elapsed >= save_interval_s:
-                elapsed = 0.0
-                _append_sensor_row(log_file_path, MAX_ROWS, log)
+        elapsed += period
+        if elapsed >= save_interval_s:
+            elapsed = 0.0
+            _append_sensor_row(log_file_path, MAX_ROWS, log)
+
+        var.system_data.storage_task_timestamp = time.time()
 
         await asyncio.sleep(period)
