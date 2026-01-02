@@ -3,10 +3,8 @@ class SensorData:
         self.temp_aht21 = 10.1
         self.temp_scd41 = 10.2
         self.temp_bmp280 = 10.3
-        self.temp_ens160 = 10.4
         self.humidity_aht21 = 69.1
         self.humidity_scd41 = 96.1
-        self.humidity_ens160 = 97.1
         self.co2_scd41 = 666
         self.eco2_ens160 = 999
         self.eco2_rating_ens160 = "excellent"
@@ -30,12 +28,15 @@ class SystemData:
         self.total_heap = 6900
         self.used_heap = 69
         self.bl_duty_percent = 34
-        self.i2c_status_scd41  = "online"
-        self.i2c_status_aht21  = "online"
-        self.i2c_status_ens160  = "online"
-        self.i2c_status_bmp280  = "online"
-        self.i2c_status_veml7700  = "online"
-        self.i2c_status_ds3231  = "online"
+        self.i2c_devices = []
+        self.i2c_status_scd41  = "NA"
+        self.i2c_status_aht21  = "NA"
+        self.i2c_status_ens160  = "NA"
+        self.i2c_status_bmp280  = "NA"
+        self.i2c_status_veml7700  = "NA"
+        self.i2c_status_ds3231  = "NA"
+        self.i2c_status_pca9685  = "NA"
+        self.i2c_status_drv2605  = "NA"
         self.i2c_status_unknown = [0x69]
         self.usb_volt = 4.85
         self.bat_volt = 3.8
@@ -43,6 +44,13 @@ class SystemData:
         self.bat_percentage = 69
         self.charging = False
         self.feedback_led = "green"
+        self.adc_task_timestamp = 0
+        self.backlight_task_timestamp = 0
+        self.history_task_timestamp = 0
+        self.i2c_task_timestamp = 0
+        self.idle_task_timestamp = 0
+        self.serial_task_timestamp = 0
+        self.storage_task_timestamp = 0
 
 
 aht21_temp_offset = 0
@@ -79,10 +87,10 @@ btn_left = None
 btn_right = None
 
 logger_paused = False
-logger_debug = ["empty"]
-logger_info = ["empty"]
-logger_error = ["empty"]
-logger_warning = ["empty"]
+logger_debug = []
+logger_info = []
+logger_error = []
+logger_warning = []
 
 logger_label_prev = ""
 logger_current_view = logger_debug
