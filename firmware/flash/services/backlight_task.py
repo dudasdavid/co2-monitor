@@ -1,5 +1,6 @@
 import uasyncio as asyncio
 from logger import Logger
+import time
 
 # ---- Global variables ----
 import shared_variables as var
@@ -62,4 +63,7 @@ async def backlight_task(period = 1.0):
             
         log.debug("Calculated duty [0-1000]:", _duty)
         var.system_data.bl_duty_percent = int(_duty)
+        
+        var.system_data.backlight_task_timestamp = time.time()
+        
         await asyncio.sleep(period)

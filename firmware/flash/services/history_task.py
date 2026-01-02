@@ -71,4 +71,6 @@ async def history_task(period=1.0):
             log.info("History recovered, updating peak CO2")
             var.history_loaded = False # We don't need this flag anymore
 
+        var.system_data.history_task_timestamp = time.time()
+
         await asyncio.sleep(period)

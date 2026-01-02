@@ -79,7 +79,7 @@ async def serial_task(period = 1.0):
         uart6.write(b'STATUS?\n')
         await asyncio.sleep(0.1)
         connection = uart6.readline()
-        log.info("STATUS?", connection)
+        log.debug("STATUS?", connection)
         
         if connection is not None:
             if connection[0:7] == b'STATUS:':
@@ -95,7 +95,7 @@ async def serial_task(period = 1.0):
         ntp_time_str = uart6.readline()
         log.debug("TIME?", ntp_time_str)
         var.system_data.time_ntp = parse_time_string(ntp_time_str, var.time_offset_ntp)
-        log.info(var.system_data.time_ntp)
+        log.debug(var.system_data.time_ntp)
         
         uart6.write(b'TEMP:' + str(var.sensor_data.temp_aht21) + ',' + str(var.sensor_data.humidity_aht21) + '\n')
         #error = uart6.readline()
@@ -118,6 +118,8 @@ async def serial_task(period = 1.0):
         await asyncio.sleep(0.1)
         feedback = uart6.readline()
         log.debug(feedback)
+        
+        var.system_data.serial_task_timestamp = time.time()
         
         await asyncio.sleep(period)
 
