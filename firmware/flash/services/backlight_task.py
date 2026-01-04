@@ -1,13 +1,23 @@
 import uasyncio as asyncio
 from logger import Logger
 import time
+import pyb
 
 # ---- Global variables ----
 import shared_variables as var
 
+# At 30kHz max duty is 3200
+# At 20kHz max duty is 4800
+
+
 async def backlight_task(period = 1.0):
     #Init
     log = Logger("bclt", debug_enabled=False)
+    
+    pin = pyb.Pin('D9')
+    tim = pyb.Timer(2, freq=20000)
+    ch = tim.channel(1, pyb.Timer.PWM, pin=pin)
+    ch.pulse_width(2000)
     
     lux_min=5.0       # below this treat as "dark"
     lux_max=500.0     # above this -> max backlight
@@ -63,6 +73,8 @@ async def backlight_task(period = 1.0):
             
         log.debug("Calculated duty [0-1000]:", _duty)
         var.system_data.bl_duty_percent = int(_duty)
+        
+        ch.pulse_width(int(_duty*4.8))
         
         var.system_data.backlight_task_timestamp = time.time()
         

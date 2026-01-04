@@ -114,10 +114,10 @@ async def serial_task(period = 1.0):
         #if error is not None:
         #    log.warning(error)
         
-        uart6.write(b'PWM:' + str(var.system_data.bl_duty_percent) + '\n')
-        await asyncio.sleep(0.1)
-        feedback = uart6.readline()
-        log.debug(feedback)
+        #uart6.write(b'PWM:' + str(var.system_data.bl_duty_percent) + '\n')
+        #await asyncio.sleep(0.1)
+        #feedback = uart6.readline()
+        #log.debug(feedback)
         
         var.system_data.serial_task_timestamp = time.time()
         
