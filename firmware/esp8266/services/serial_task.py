@@ -9,10 +9,7 @@ async def serial_task(period = 1.0):
     #Init
     log = Logger("uart", debug_enabled=False)
     
-    uart = UART(
-        0,
-        baudrate=115200
-    )
+    uart = UART(0, baudrate=115200, bits=8, parity=None, stop=1, timeout=0)
     
     # ---- RX flush on init ----
     flushed = 0

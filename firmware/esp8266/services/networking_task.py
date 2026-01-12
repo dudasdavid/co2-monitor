@@ -131,7 +131,7 @@ def _page_html(current_ssid="", msg=""):
   </style>
 </head>
 <body>
-  <h2>Pico 2W WiFi Setup</h2>
+  <h2>CO2 Monitor WiFi Setup</h2>
   <div class="card">
     %s
     <form method="POST" action="/save">
@@ -271,6 +271,7 @@ async def wifi_connect(wlan, timeout_s = 30):
         await asyncio.sleep_ms(500)
 
     log.info("WiFi connected! IP address:", wlan.ifconfig()[0])
+    var.wifi_ip = wlan.ifconfig()[0]
     var.wifi_connecting = False
 
     # ---- SYNC TIME FROM NTP ----
