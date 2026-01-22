@@ -27,6 +27,7 @@ async def backlight_task(period = 1.0):
     alpha=0.3          # smoothing factor (0..1), 0=no change, 1=no smoothing
     _level = 0.0       # internal smoothed brightness level [0..1]
     _duty = 0.0
+    max_step = 30 
 
     def _lux_to_level(lux):
         """Map lux → linear brightness level [0..1] (before gamma)."""
@@ -62,6 +63,15 @@ async def backlight_task(period = 1.0):
         return duty
         
 
+    def _slew_limit(current, target, max_delta):
+        """Move current toward target by at most max_delta (both can be float/int)."""
+        diff = target - current
+        if diff > max_delta:
+            return current + max_delta
+        if diff < -max_delta:
+            return current - max_delta
+        return target
+
     #Run
     while True:
         log.debug("Measured lux:", var.sensor_data.lux_veml7700)
@@ -69,7 +79,8 @@ async def backlight_task(period = 1.0):
         raw_level = _lux_to_level(var.sensor_data.lux_veml7700)
         # Exponential smoothing to avoid flicker (optional)
         _level = (1.0 - alpha) * _level + alpha * raw_level
-        _duty = _level_to_duty(_level)
+        _target_duty = _level_to_duty(_level)
+        _duty = _slew_limit(_duty, _target_duty, max_step)
             
         log.debug("Calculated duty [0-1000]:", _duty)
         var.system_data.bl_duty_percent = int(_duty)
