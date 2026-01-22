@@ -88,9 +88,10 @@ async def adc_task(period = 1.0):
     #Init
     log = Logger("adc", debug_enabled=False)
     
-    adc0 = ADC(Pin('A0')) # USB voltage
+    adc0 = ADC(Pin('A0')) # 5V DC/DC converter output
     adc1 = ADC(Pin('A1')) # Battery voltage
-    adc2 = ADC(Pin('A2')) # 5V DC/DC converter output
+    adc2 = ADC(Pin('A2')) # USB voltage
+    adc3 = ADC(Pin('A3')) # Ideal diode output
 
     VREF = 3.3
     SCALE = VREF * 2 / 65535.0 # 2x due to 1:1 voltage divider
@@ -108,17 +109,20 @@ async def adc_task(period = 1.0):
         raw_dcdc  = adc0.read_u16()
         raw_bat  = adc1.read_u16()
         raw_usb = adc2.read_u16()
+        raw_ideal_diode = adc3.read_u16()
         
         # Convert to volts (approx; assumes ADC ref ~3.3V)
         v_usb = raw_usb * SCALE
         v_bat = raw_bat * SCALE
         v_dcdc = raw_dcdc * SCALE
+        v_ideal_diode = raw_ideal_diode * SCALE
         
         v_bat_f = bat_filt.update(v_bat)
     
         var.system_data.usb_volt = v_usb
         var.system_data.bat_volt = v_bat_f
         var.system_data.dcdc_volt = v_dcdc
+        var.system_data.ideal_diode_volt = v_ideal_diode
         
         var.system_data.bat_percentage = lipo_voltage_to_percent(v_bat_f)
         

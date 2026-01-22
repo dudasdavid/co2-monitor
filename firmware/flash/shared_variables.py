@@ -41,6 +41,7 @@ class SystemData:
         self.usb_volt = 4.85
         self.bat_volt = 3.8
         self.dcdc_volt = 4.69
+        self.ideal_diode_volt = 5.0
         self.bat_percentage = 69
         self.charging = False
         self.feedback_led = "green"
