@@ -67,6 +67,7 @@ async def i2c_task(period = 1.0):
     # Initialize the DS3231 RTC
     ds3231 = ds3231_driver.DS3231(i2c1)
     rtc_datetime = ds3231.datetime()
+    var.system_data.time_rtc = rtc_datetime
     log.info("[DS3231] RTC datetime at init:", rtc_datetime)
     
     # Initialize MCU's RTC HW
@@ -107,77 +108,82 @@ async def i2c_task(period = 1.0):
     drv2605.play()                     
     #drv2605.stop()
 
-    #Run
+    i = 0
+
+    #Run    
     while True:
         
-        devices = i2c1.scan()
-        var.system_data.i2c_devices = devices
-        
-        # AHT21
-        try:
-            idx = devices.index(0x38)
-            devices.pop(idx)
-            var.system_data.i2c_status_aht21 = "AHT21 is online at 0x38"
-        except:
-            var.system_data.i2c_status_aht21 = "AHT21 is NOT found at 0x38"
-
-        # BMP280
-        try:
-            idx = devices.index(0x76)
-            devices.pop(idx)
-            var.system_data.i2c_status_bmp280 = "BMP280 is online at 0x76"
-        except:
-            var.system_data.i2c_status_bmp280 = "BMP280 is NOT found at 0x76"
-        
-        # DS3231
-        try:
-            idx = devices.index(0x68)
-            devices.pop(idx)
-            var.system_data.i2c_status_ds3231 = "DS3231 is online at 0x68"
-        except:
-            var.system_data.i2c_status_ds3231 = "DS3231 is NOT found at 0x68"
-        
-        # ENS160
-        try:
-            idx = devices.index(0x53)
-            devices.pop(idx)
-            var.system_data.i2c_status_ens160 = "ENS160 is online at 0x53"
-        except:
-            var.system_data.i2c_status_ens160 = "ENS160 is NOT found at 0x53"
-        
-        # SCD41
-        try:
-            idx = devices.index(0x62)
-            devices.pop(idx)
-            var.system_data.i2c_status_scd41 = "SCD41 is online at 0x62"
-        except:
-            var.system_data.i2c_status_scd41 = "SCD41 is NOT found at 0x62"
-        
-        # VEML7700
-        try:
-            idx = devices.index(0x10)
-            devices.pop(idx)
-            var.system_data.i2c_status_veml7700 = "VEML7700 is online at 0x10"
-        except:
-            var.system_data.i2c_status_veml7700 = "VEML7700 is NOT found at 0x10"
-
-        # DRV2605
-        try:
-            idx = devices.index(0x5A)
-            devices.pop(idx)
-            var.system_data.i2c_status_drv2605 = "DRV2605 is online at 0x5A"
-        except:
-            var.system_data.i2c_status_drv2605 = "DRV2605 is NOT found at 0x5A"
-
-        # PCA9685
-        try:
-            idx = devices.index(0x40)
-            devices.pop(idx)
-            var.system_data.i2c_status_pca9685 = "PCA9685 is online at 0x40"
-        except:
-            var.system_data.i2c_status_pca9685 = "PCA9685 is NOT found at 0x40"
+        i+=1
+        # Only scan devices in every 10th loop
+        if i % 10 == 0:
+            devices = i2c1.scan()
+            var.system_data.i2c_devices = devices
             
-        var.system_data.i2c_status_unknown = devices
+            # AHT21
+            try:
+                idx = devices.index(0x38)
+                devices.pop(idx)
+                var.system_data.i2c_status_aht21 = "AHT21 is online at 0x38"
+            except:
+                var.system_data.i2c_status_aht21 = "AHT21 is NOT found at 0x38"
+
+            # BMP280
+            try:
+                idx = devices.index(0x76)
+                devices.pop(idx)
+                var.system_data.i2c_status_bmp280 = "BMP280 is online at 0x76"
+            except:
+                var.system_data.i2c_status_bmp280 = "BMP280 is NOT found at 0x76"
+            
+            # DS3231
+            try:
+                idx = devices.index(0x68)
+                devices.pop(idx)
+                var.system_data.i2c_status_ds3231 = "DS3231 is online at 0x68"
+            except:
+                var.system_data.i2c_status_ds3231 = "DS3231 is NOT found at 0x68"
+            
+            # ENS160
+            try:
+                idx = devices.index(0x53)
+                devices.pop(idx)
+                var.system_data.i2c_status_ens160 = "ENS160 is online at 0x53"
+            except:
+                var.system_data.i2c_status_ens160 = "ENS160 is NOT found at 0x53"
+            
+            # SCD41
+            try:
+                idx = devices.index(0x62)
+                devices.pop(idx)
+                var.system_data.i2c_status_scd41 = "SCD41 is online at 0x62"
+            except:
+                var.system_data.i2c_status_scd41 = "SCD41 is NOT found at 0x62"
+            
+            # VEML7700
+            try:
+                idx = devices.index(0x10)
+                devices.pop(idx)
+                var.system_data.i2c_status_veml7700 = "VEML7700 is online at 0x10"
+            except:
+                var.system_data.i2c_status_veml7700 = "VEML7700 is NOT found at 0x10"
+
+            # DRV2605
+            try:
+                idx = devices.index(0x5A)
+                devices.pop(idx)
+                var.system_data.i2c_status_drv2605 = "DRV2605 is online at 0x5A"
+            except:
+                var.system_data.i2c_status_drv2605 = "DRV2605 is NOT found at 0x5A"
+
+            # PCA9685
+            try:
+                idx = devices.index(0x40)
+                devices.pop(idx)
+                var.system_data.i2c_status_pca9685 = "PCA9685 is online at 0x40"
+            except:
+                var.system_data.i2c_status_pca9685 = "PCA9685 is NOT found at 0x40"
+                
+            var.system_data.i2c_status_unknown = devices
 
         lux = veml7700_sensor.read_lux()
         log.debug("[VEML7700] Lux", lux)
@@ -225,12 +231,13 @@ async def i2c_task(period = 1.0):
         else:
             var.system_data.feedback_led = "red"
         
-        var.system_data.time_rtc = ds3231.datetime()
-        log.debug("[DS3231] RTC datetime:", var.system_data.time_rtc)
-        
-        if is_time_diff_over_threshold(var.system_data.time_ntp, var.system_data.time_rtc, 60):
-            log.warning("[DS3231] RTC time needs to be updated from NTP time!", var.system_data.time_ntp)
-            ds3231.datetime(var.system_data.time_ntp)
+        if i % 10 == 5:
+            var.system_data.time_rtc = ds3231.datetime()
+            log.debug("[DS3231] RTC datetime:", var.system_data.time_rtc)
+            
+            if is_time_diff_over_threshold(var.system_data.time_ntp, var.system_data.time_rtc, 60):
+                log.warning("[DS3231] RTC time needs to be updated from NTP time!", var.system_data.time_ntp)
+                ds3231.datetime(var.system_data.time_ntp)
         
         pressure = bmp280.pressure
         temp = bmp280.temperature
