@@ -20,6 +20,7 @@ class SystemData:
         self.time_ntp = "Not connected"
         self.time_rtc = "2025-11-20 20:00:10"
         self.status_wifi = "Not Connected"
+        self.status_ap = "Not Connected"
         self.status_sd = "Offline"
         self.total_space_flash = 690
         self.used_space_flash = 69
@@ -61,7 +62,7 @@ aht21_humidity_offset = 0
 CO2_HISTORY_MAX = 12 * 24
 
 scd41_co2_peak_ppm = 400
-scd41_co2_threshold = 1300
+scd41_co2_threshold = 1800
 scd41_co2_detected = 0
 scd41_co2_history = [400] # Must contain 1 placeholder element
 scd41_co2_max_history_samples = 60
@@ -95,5 +96,7 @@ logger_warning = []
 
 logger_label_prev = ""
 logger_current_view = logger_debug
+
+ap_request = False
 
 

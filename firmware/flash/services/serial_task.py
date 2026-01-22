@@ -74,42 +74,62 @@ async def serial_task(period = 1.0):
     while True:
         
         _ = uart6.read(uart6.any() or 0)  # dump whatever is there
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.3)
         
-        uart6.write(b'STATUS?\n')
-        await asyncio.sleep(0.1)
+        uart6.write(b'WIFI_STATUS?\n')
+        await asyncio.sleep(0.2)
         connection = uart6.readline()
-        log.debug("STATUS?", connection)
+        log.debug("WIFI_STATUS?", connection)
         
         if connection is not None:
-            if connection[0:7] == b'STATUS:':
-                var.system_data.status_wifi = str(connection)[9:-5].replace(" ", " | ")
-            else:
-                var.system_data.status_wifi = connection
+            var.system_data.status_wifi = connection.strip()
         else:
-            var.system_data.status_wifi = "ESP8266 is OFFLINE"
+            var.system_data.status_wifi = "ESP32C3 is OFFLINE"
             
+        await asyncio.sleep(0.3)
+        
+        uart6.write(b'AP_STATUS?\n')
+        await asyncio.sleep(0.2)
+        connection = uart6.readline()
+        log.debug("AP_STATUS?", connection)
+        
+        if connection is not None:
+            var.system_data.status_ap = connection.strip()
+        else:
+            var.system_data.status_ap = "ESP32C3 is OFFLINE"
+            
+        await asyncio.sleep(0.3)
         
         uart6.write(b'TIME?\n')
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
         ntp_time_str = uart6.readline()
         log.debug("TIME?", ntp_time_str)
         var.system_data.time_ntp = parse_time_string(ntp_time_str, var.time_offset_ntp)
         log.debug(var.system_data.time_ntp)
         
+        await asyncio.sleep(0.3)
+        
         uart6.write(b'TEMP:' + str(var.sensor_data.temp_aht21) + ',' + str(var.sensor_data.humidity_aht21) + '\n')
         #error = uart6.readline()
         #if error is not None:
         #    log.warning(error)
+        await asyncio.sleep(0.2)
         uart6.write(b'AQI:' + str(var.sensor_data.aqi_ens160) + ',1,2,' + str(var.sensor_data.tvoc_ens160) + '\n') # PM2_5 and PM10 is 1 and 2 as placeholder
         #error = uart6.readline()
         #if error is not None:
         #    log.warning(error)
+        await asyncio.sleep(0.2)
         uart6.write(b'CO2:' + str(var.sensor_data.co2_scd41) + ',' + str(var.scd41_co2_peak_ppm) + ',' + str(var.scd41_co2_detected) + '\n')
         #error = uart6.readline()
         #if error is not None:
         #    log.warning(error)
+        await asyncio.sleep(0.2)
         uart6.write(b'LUX:' + str(var.sensor_data.lux_veml7700) + '\n')
+        #error = uart6.readline()
+        #if error is not None:
+        #    log.warning(error)
+        await asyncio.sleep(0.2)
+        uart6.write(b'BAT:' + str(var.system_data.bat_percentage) + '\n')
         #error = uart6.readline()
         #if error is not None:
         #    log.warning(error)
@@ -118,6 +138,13 @@ async def serial_task(period = 1.0):
         #await asyncio.sleep(0.1)
         #feedback = uart6.readline()
         #log.debug(feedback)
+        await asyncio.sleep(0.2)
+        
+        if var.ap_request:
+            uart6.write(b'AP_START\n')
+            var.ap_request = False
+            await asyncio.sleep(0.2)
+            
         
         var.system_data.serial_task_timestamp = time.time()
         
