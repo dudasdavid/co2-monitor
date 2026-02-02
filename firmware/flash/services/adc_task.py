@@ -8,14 +8,12 @@ import shared_variables as var
 
 def lipo_voltage_to_percent(v):
     # Clamp first
-    if v >= 4.20:
+    if v >= 4.10:
         return 100
-    if v <= 3.50:
+    if v <= 3.40:
         return 0
 
     # Piecewise linear approximation
-    if v >= 4.10:
-        return 90 + (v - 4.10) * 100
     if v >= 4.00:
         return 80 + (v - 4.00) * 100
     if v >= 3.90:
@@ -26,7 +24,9 @@ def lipo_voltage_to_percent(v):
         return 20 + (v - 3.70) * 200
     if v >= 3.60:
         return 10 + (v - 3.60) * 100
-    return (v - 3.50) * 100
+    if v >= 3.50:
+        return 10 + (v - 3.50) * 100
+    return (v - 3.40) * 100
 
 class BatteryFilter:
     def __init__(self,
