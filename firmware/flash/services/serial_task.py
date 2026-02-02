@@ -115,29 +115,19 @@ async def serial_task(period = 1.0):
         #    log.warning(error)
         await asyncio.sleep(0.2)
         uart6.write(b'AQI:' + str(var.sensor_data.aqi_ens160) + ',1,2,' + str(var.sensor_data.tvoc_ens160) + '\n') # PM2_5 and PM10 is 1 and 2 as placeholder
-        #error = uart6.readline()
-        #if error is not None:
-        #    log.warning(error)
+
         await asyncio.sleep(0.2)
         uart6.write(b'CO2:' + str(var.sensor_data.co2_scd41) + ',' + str(var.scd41_co2_peak_ppm) + ',' + str(var.scd41_co2_detected) + '\n')
-        #error = uart6.readline()
-        #if error is not None:
-        #    log.warning(error)
+
         await asyncio.sleep(0.2)
         uart6.write(b'LUX:' + str(var.sensor_data.lux_veml7700) + '\n')
-        #error = uart6.readline()
-        #if error is not None:
-        #    log.warning(error)
+    
+        await asyncio.sleep(0.2)
+        uart6.write(b'PRE:' + str(var.sensor_data.pressure_bmp280) + '\n')
+
         await asyncio.sleep(0.2)
         uart6.write(b'BAT:' + str(var.system_data.bat_percentage) + '\n')
-        #error = uart6.readline()
-        #if error is not None:
-        #    log.warning(error)
-        
-        #uart6.write(b'PWM:' + str(var.system_data.bl_duty_percent) + '\n')
-        #await asyncio.sleep(0.1)
-        #feedback = uart6.readline()
-        #log.debug(feedback)
+
         await asyncio.sleep(0.2)
         
         if var.ap_request:
