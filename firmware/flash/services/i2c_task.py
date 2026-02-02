@@ -10,11 +10,12 @@ from drivers import ds3231 as ds3231_driver
 from drivers import bmp280 as bmp280_driver
 from drivers2 import pca9685 as pca9685_driver
 from drivers2 import drv2605 as drv2605_driver
+import math
 
 # ---- Global variables ----
 import shared_variables as var
 
-log = Logger("i2c", debug_enabled=False)
+log = Logger("i2c", debug_enabled=True)
 
 def is_time_diff_over_threshold(ntp_time, rtc_time, threshold_seconds=60):
     """
@@ -48,6 +49,26 @@ def is_time_diff_over_threshold(ntp_time, rtc_time, threshold_seconds=60):
     except Exception as e:
         log.warning("Failed to compare times:", ntp_time, rtc_time, "| Error:", e)
         return False
+
+def compensate_humidity(rh_raw: float, t_raw: float, t_cal: float) -> float:
+    """
+    rh_raw : raw relative humidity from sensor (%)
+    t_raw  : raw (uncalibrated) temperature used by sensor (°C)
+    t_cal  : calibrated / real temperature (°C)
+    """
+
+    # saturation vapor pressure (hPa)
+    def esat(T):
+        return 6.112 * math.exp((17.62 * T) / (243.12 + T))
+
+    # actual vapor pressure stays constant
+    e = (rh_raw / 100.0) * esat(t_raw)
+
+    # recompute RH at corrected temperature
+    rh_cal = 100.0 * e / esat(t_cal)
+
+    # clamp to physical limits
+    return max(0.0, min(100.0, rh_cal))
 
 async def i2c_task(period = 1.0):
     #Init
@@ -187,14 +208,33 @@ async def i2c_task(period = 1.0):
 
         lux = veml7700_sensor.read_lux()
         log.debug("[VEML7700] Lux", lux)
-        var.sensor_data.lux_veml7700 = lux if lux is not None else 0
         
+        if lux is not None:
+            lux_cal = 3.0 * lux - 0
+            var.sensor_data.lux_veml7700 = lux_cal
+        else:
+            var.sensor_data.lux_veml7700 = 0
+                
         temp = aht21_sensor.temperature + var.aht21_temp_offset
         rh = aht21_sensor.relative_humidity
         log.debug("[AHT21] temperature:", temp)
         log.debug("[AHT21] humidity:", rh)
-        var.sensor_data.temp_aht21 = temp if temp is not None else 0
-        var.sensor_data.humidity_aht21 = rh if rh is not None else 0
+        
+        #var.sensor_data.temp_aht21 = temp if temp is not None else 0
+        # Use temperature sensor calibration here
+        if temp is not None:
+            temp_cal = 1.04 * temp - 10.2
+            var.sensor_data.temp_aht21 = temp_cal
+        else:
+            temp_cal = 0.69
+            var.sensor_data.temp_aht21 = temp_cal
+        
+        #var.sensor_data.humidity_aht21 = rh if rh is not None else 0
+        if rh is not None:
+            rh_cal = compensate_humidity(rh, temp, temp_cal)
+            var.sensor_data.humidity_aht21 = rh_cal
+        else:
+            var.sensor_data.humidity_aht21 = 0
         
         aqi, tvoc, eco2, temp, rh, eco2_rating, tvoc_rating = ens160_sensor.read_air_quality()
 
@@ -219,8 +259,19 @@ async def i2c_task(period = 1.0):
         log.debug("[SCD41] temperature:", temp)
         log.debug("[SCD41] humidity:", rh)
         var.sensor_data.co2_scd41 = co2 if co2 is not None else 0
-        var.sensor_data.temp_scd41 = temp if temp is not None else 0
-        var.sensor_data.humidity_scd41 = rh if rh is not None else 0
+        
+        if temp is not None:
+            temp_cal = 0.98 * temp - 6.8
+            var.sensor_data.temp_scd41 = temp_cal
+        else:
+            temp_cal = 0.69
+            var.sensor_data.temp_scd41 = temp_cal
+        
+        if rh is not None:
+            rh_cal = compensate_humidity(rh, temp, temp_cal)
+            var.sensor_data.humidity_scd41 = rh_cal
+        else:
+            var.sensor_data.humidity_scd41 = 0
         
         if co2 == None:
             var.system_data.feedback_led = "off"
@@ -244,7 +295,12 @@ async def i2c_task(period = 1.0):
         log.debug("[BMP280] pressure:", pressure)
         log.debug("[BMP280] temperature:", temp)
         var.sensor_data.pressure_bmp280 = pressure if pressure is not None else 0
-        var.sensor_data.temp_bmp280 = temp if temp is not None else 0
+        
+        if temp is not None:
+            temp_cal = 0.98 * temp - 5.6
+            var.sensor_data.temp_bmp280 = temp_cal
+        else:
+            var.sensor_data.temp_bmp280 = 0
         
         if var.system_data.feedback_led == "green":
             pca9685.duty(0, 0)
