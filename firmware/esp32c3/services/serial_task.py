@@ -29,6 +29,8 @@ async def serial_task(period = 1.0):
     # You can replace this with your own protocol.
     def build_response(req: str) -> bytes:
         r = req.strip()  # strip whitespace + CR/LF
+        
+        log.debug(f"Received message: {r}")
 
         if not r:
             return b"ERR empty\r\n"
@@ -45,7 +47,7 @@ async def serial_task(period = 1.0):
                 if var.wifi_connecting:
                     return b"WiFi connecting...\r\n"
                 else:
-                    return b"WiFi is NOT connected\r\n"
+                    return "Sleep {}s\r\n".format(int(var.sleep_till_next_connection)).encode()
 
         if r == "AP_STATUS?":
             if var.ap_enabled:
@@ -87,6 +89,16 @@ async def serial_task(period = 1.0):
             data_array = r[4:].split(",")
             var.lux = float(data_array[0])
             return None
+        
+        if "PRE:" in r:
+            data_array = r[4:].split(",")
+            var.pressure = float(data_array[0])
+            return None
+        
+        if "BAT:" in r:
+            data_array = r[4:].split(",")
+            var.battery = float(data_array[0])
+            return None
 
         # default: echo
         return "ECHO {}\r\n".format(r).encode()
@@ -113,7 +125,8 @@ async def serial_task(period = 1.0):
         # safety: cap buffer (prevents RAM blowup if peer spams without CRLF)
         if len(buf) > max_buf_len:
             log.debug(f"RX buffer overflow (len={len(buf)}), clearing")
-            buf.clear()
+            #buf.clear()
+            buf = bytearray()
             uart.write(b"ERR overflow\r\n")
             continue
 
@@ -135,5 +148,6 @@ async def serial_task(period = 1.0):
         if buf:
             if asyncio.ticks_diff(time.ticks_ms(), last_rx_ms) > request_timeout_ms:
                 log.debug(f"Partial-frame timeout, dropping {len(buf)} bytes")
-                buf.clear()
+                #buf.clear()
+                buf = bytearray()
                 uart.write(b"ERR timeout\r\n")

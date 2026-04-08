@@ -44,3 +44,7 @@ co2 = None
 co2_peak = None
 co2_detected = None
 lux = None
+battery = None
+pressure = None
+
+first_connect = True
