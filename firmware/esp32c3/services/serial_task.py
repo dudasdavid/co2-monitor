@@ -73,9 +73,7 @@ async def serial_task(period = 1.0):
         if "AQI:" in r:
             data_array = r[4:].split(",")
             var.aqi = float(data_array[0])
-            var.pm2_5 = float(data_array[1])
-            var.pm10 = float(data_array[2])
-            var.tvoc = float(data_array[3])
+            var.tvoc = float(data_array[1])
             return None
 
         if "CO2:" in r:
@@ -98,6 +96,14 @@ async def serial_task(period = 1.0):
         if "BAT:" in r:
             data_array = r[4:].split(",")
             var.battery = float(data_array[0])
+            return None
+        
+        if "PM:" in r:
+            data_array = r[3:].split(",")
+            var.pm10 = float(data_array[0])
+            var.pm4_0 = float(data_array[1])
+            var.pm2_5 = float(data_array[2])
+            var.pm1_0 = float(data_array[3])
             return None
 
         # default: echo
