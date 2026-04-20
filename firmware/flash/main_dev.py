@@ -67,12 +67,12 @@ async def main():
 
     # 1) spawn threads
     asyncio.create_task(idle_task(5.0))
-    asyncio.create_task(serial_task(0.5))
+    asyncio.create_task(serial_task(1))
     asyncio.create_task(i2c_task(0.3))
-    asyncio.create_task(backlight_task(0.4))
+    asyncio.create_task(backlight_task(0.1))
     asyncio.create_task(storage_task(3))
     asyncio.create_task(history_task(2))
-    asyncio.create_task(adc_task(0.5))
+    asyncio.create_task(adc_task(1))
 
     # 3) main loop can do supervision / LEDs / watchdog
     led = machine.Pin("LED", machine.Pin.OUT)
@@ -81,7 +81,7 @@ async def main():
     ui2.create_co2_chart()
     ui1.create_sensor_table()
     ui1.create_system_table()
-    ui1.create_console_log()
+    #ui1.create_console_log()
     #ui2.create_screen(0x202040, "Screen 1")
     #ui2.create_screen(0x204020, "Screen 2")
 

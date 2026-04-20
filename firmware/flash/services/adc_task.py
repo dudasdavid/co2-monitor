@@ -6,27 +6,29 @@ import utime
 # ---- Global variables ----
 import shared_variables as var
 
+def corrected_voltage(v_measured):
+    A = 1.0
+    B = 0.0
+    return A * v_measured + B
+
 def lipo_voltage_to_percent(v):
-    # Clamp first
-    if v >= 4.10:
+    if v >= 4.1:
         return 100
-    if v <= 3.40:
+    if v <= 3.10:
         return 0
 
-    # Piecewise linear approximation
-    if v >= 4.00:
-        return 80 + (v - 4.00) * 100
-    if v >= 3.90:
-        return 60 + (v - 3.90) * 200
-    if v >= 3.80:
-        return 40 + (v - 3.80) * 200
-    if v >= 3.70:
-        return 20 + (v - 3.70) * 200
-    if v >= 3.60:
-        return 10 + (v - 3.60) * 100
-    if v >= 3.50:
-        return 10 + (v - 3.50) * 100
-    return (v - 3.40) * 100
+    if v >= 4.0:
+        return 90 + (v - 4.0) * 100
+    elif v >= 3.8:
+        return 70 + (v - 3.8) * 100
+    elif v >= 3.6:
+        return 50 + (v - 3.6) * 100
+    elif v >= 3.4:
+        return 30 + (v - 3.4) * 100
+    elif v >= 3.2:
+        return 10 + (v - 3.2) * 100
+    else:
+        return (v - 3.1) * 100
 
 class BatteryFilter:
     def __init__(self,
@@ -117,13 +119,16 @@ async def adc_task(period = 1.0):
         v_dcdc = raw_dcdc * SCALE
         v_ideal_diode = raw_ideal_diode * SCALE
         
+        # Get calibrated voltage
+        v_bat = corrected_voltage(v_bat)
+        # Apply LPF
         v_bat_f = bat_filt.update(v_bat)
     
         var.system_data.usb_volt = v_usb
         var.system_data.bat_volt = v_bat_f
         var.system_data.dcdc_volt = v_dcdc
         var.system_data.ideal_diode_volt = v_ideal_diode
-        
+        # Calculate percentage
         var.system_data.bat_percentage = lipo_voltage_to_percent(v_bat_f)
         
         if v_usb > 1.0:
