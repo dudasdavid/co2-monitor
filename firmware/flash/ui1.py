@@ -7,7 +7,7 @@ import shared_variables as var
 SCREEN_H = 272
 SCREEN_W = 480
 STATUS_BAR_H = 24
-PAGE_W_PADDING = 28
+PAGE_W_PADDING = 0
 
 # ---- Swipe handling ----
 SWIPE_THRESHOLD = 40   # pixels
@@ -131,8 +131,8 @@ def create_sensor_table():
     table.set_col_cnt(2)
     table.set_row_cnt(15)
 
-    table.set_col_width(0, 250)
-    table.set_col_width(1, 180)
+    table.set_col_width(0, 390)
+    table.set_col_width(1, 80)
 
     '''
     # Static labels in first row
@@ -156,10 +156,10 @@ def create_sensor_table():
     table.set_cell_value(6, 0, "eCO2 ENS160 [ppm]")
     table.set_cell_value(7, 0, "TVOC [ppb]")
     table.set_cell_value(8, 0, "AQI")
-    table.set_cell_value(9, 0, "PM10")
-    table.set_cell_value(10, 0, "PM4.0")
-    table.set_cell_value(11, 0, "PM2.5")
-    table.set_cell_value(12, 0, "PM1.0")
+    table.set_cell_value(9, 0, "PM 10")
+    table.set_cell_value(10, 0, "PM 4.0")
+    table.set_cell_value(11, 0, "PM 2.5")
+    table.set_cell_value(12, 0, "PM 1.0")
     table.set_cell_value(13, 0, "Pressure [hPa]")
     table.set_cell_value(14, 0, "Lux")
 
@@ -205,6 +205,18 @@ def create_sensor_table():
     page_style.set_border_width(lv.STATE.DEFAULT, 0)
 
     page.add_style(page.PART.BG, page_style)
+    
+    # Remove page background padding
+    page.set_style_local_pad_left(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_right(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_top(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_bottom(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+
+    # Remove scrollable container padding too
+    page.set_style_local_pad_left(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_right(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_top(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_bottom(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
 
     # --- Remove thick border around table ---
     table_bg = lv.style_t()
@@ -219,12 +231,12 @@ def create_sensor_table():
     table_style = lv.style_t()
     table_style.init()
     # Background of table
-    table_style.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(0x101010))
+    table_style.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(0x000000))
     table_style.set_bg_opa(lv.STATE.DEFAULT, lv.OPA.COVER)
     # Text
     table_style.set_text_color(lv.STATE.DEFAULT, lv.color_hex(0xffffff))
     # Cell borders
-    table_style.set_border_color(lv.STATE.DEFAULT, lv.color_hex(0x404040))
+    table_style.set_border_color(lv.STATE.DEFAULT, lv.color_hex(0x303030))
     table_style.set_border_width(lv.STATE.DEFAULT, 1)
     # Row/column dividers
     table_style.set_pad_top(lv.STATE.DEFAULT, 2)
@@ -287,10 +299,10 @@ def create_system_table():
 
     # 2 columns and 15 rows
     table.set_col_cnt(2)
-    table.set_row_cnt(33)
+    table.set_row_cnt(34)
 
     table.set_col_width(0, 180)
-    table.set_col_width(1, 250)
+    table.set_col_width(1, 290)
     
     '''
     # Static labels in first row
@@ -323,21 +335,22 @@ def create_system_table():
     table.set_cell_value(15, 0, "i2c DS3231")
     table.set_cell_value(16, 0, "i2c DRV2605")
     table.set_cell_value(17, 0, "i2c PCA9685")
-    table.set_cell_value(18, 0, "Unknown devices")
-    table.set_cell_value(19, 0, "USB voltage")
-    table.set_cell_value(20, 0, "5V voltage")
-    table.set_cell_value(21, 0, "Ideal diode voltage")
-    table.set_cell_value(22, 0, "Battery voltage")
-    table.set_cell_value(23, 0, "Battery %")
-    table.set_cell_value(24, 0, "Charging")
-    table.set_cell_value(25, 0, "LED feedback")
-    table.set_cell_value(26, 0, "ADC task")
-    table.set_cell_value(27, 0, "Backlight task")
-    table.set_cell_value(28, 0, "History task")
-    table.set_cell_value(29, 0, "i2c task")
-    table.set_cell_value(30, 0, "Idle task")
-    table.set_cell_value(31, 0, "Serial task")
-    table.set_cell_value(32, 0, "Storage task")
+    table.set_cell_value(18, 0, "i2c SPS30")
+    table.set_cell_value(19, 0, "Unknown devices")
+    table.set_cell_value(20, 0, "USB voltage")
+    table.set_cell_value(21, 0, "5V voltage")
+    table.set_cell_value(22, 0, "Ideal diode voltage")
+    table.set_cell_value(23, 0, "Battery voltage")
+    table.set_cell_value(24, 0, "Battery %")
+    table.set_cell_value(25, 0, "Charging")
+    table.set_cell_value(26, 0, "LED feedback")
+    table.set_cell_value(27, 0, "ADC task")
+    table.set_cell_value(28, 0, "Backlight task")
+    table.set_cell_value(29, 0, "History task")
+    table.set_cell_value(30, 0, "i2c task")
+    table.set_cell_value(31, 0, "Idle task")
+    table.set_cell_value(32, 0, "Serial task")
+    table.set_cell_value(33, 0, "Storage task")
 
     # --- LVGL task: pull Python vars & update table ---
     def table_update_cb(task):
@@ -368,25 +381,26 @@ def create_system_table():
         table.set_cell_value(15, 1, "{}".format(var.system_data.i2c_status_ds3231))
         table.set_cell_value(16, 1, "{}".format(var.system_data.i2c_status_drv2605))
         table.set_cell_value(17, 1, "{}".format(var.system_data.i2c_status_pca9685))
+        table.set_cell_value(18, 1, "{}".format(var.system_data.i2c_status_sps30))
         if len(var.system_data.i2c_status_unknown) > 0:
             hex_list = ["0x{:02X}".format(v) for v in var.system_data.i2c_status_unknown]
-            table.set_cell_value(18, 1, "Unknown device(s) at {}".format(", ".join(hex_list)))
+            table.set_cell_value(19, 1, "Unknown device(s) at {}".format(", ".join(hex_list)))
         else:
-            table.set_cell_value(18, 1, "There are no unknown devices.")
-        table.set_cell_value(19, 1, "{:.2f}".format(var.system_data.usb_volt))
-        table.set_cell_value(20, 1, "{:.2f}".format(var.system_data.dcdc_volt))
-        table.set_cell_value(21, 1, "{:.2f}".format(var.system_data.ideal_diode_volt))
-        table.set_cell_value(22, 1, "{:.2f}".format(var.system_data.bat_volt))
-        table.set_cell_value(23, 1, "{}".format(int(var.system_data.bat_percentage)))
-        table.set_cell_value(24, 1, "{}".format(var.system_data.charging))
-        table.set_cell_value(25, 1, "{}".format(var.system_data.feedback_led))
-        table.set_cell_value(26, 1, "{}".format(var.system_data.adc_task_timestamp))
-        table.set_cell_value(27, 1, "{}".format(var.system_data.backlight_task_timestamp))
-        table.set_cell_value(28, 1, "{}".format(var.system_data.history_task_timestamp))
-        table.set_cell_value(29, 1, "{}".format(var.system_data.i2c_task_timestamp))
-        table.set_cell_value(30, 1, "{}".format(var.system_data.idle_task_timestamp))
-        table.set_cell_value(31, 1, "{}".format(var.system_data.serial_task_timestamp))
-        table.set_cell_value(32, 1, "{}".format(var.system_data.storage_task_timestamp))
+            table.set_cell_value(19, 1, "There are no unknown devices.")
+        table.set_cell_value(20, 1, "{:.2f}".format(var.system_data.usb_volt))
+        table.set_cell_value(21, 1, "{:.2f}".format(var.system_data.dcdc_volt))
+        table.set_cell_value(22, 1, "{:.2f}".format(var.system_data.ideal_diode_volt))
+        table.set_cell_value(23, 1, "{:.2f}".format(var.system_data.bat_volt))
+        table.set_cell_value(24, 1, "{}".format(int(var.system_data.bat_percentage)))
+        table.set_cell_value(25, 1, "{}".format(var.system_data.charging))
+        table.set_cell_value(26, 1, "{}".format(var.system_data.feedback_led))
+        table.set_cell_value(27, 1, "{}".format(var.system_data.adc_task_timestamp))
+        table.set_cell_value(28, 1, "{}".format(var.system_data.backlight_task_timestamp))
+        table.set_cell_value(29, 1, "{}".format(var.system_data.history_task_timestamp))
+        table.set_cell_value(30, 1, "{}".format(var.system_data.i2c_task_timestamp))
+        table.set_cell_value(31, 1, "{}".format(var.system_data.idle_task_timestamp))
+        table.set_cell_value(32, 1, "{}".format(var.system_data.serial_task_timestamp))
+        table.set_cell_value(33, 1, "{}".format(var.system_data.storage_task_timestamp))
 
 
     # --- Update table in every 1000ms ---
@@ -412,6 +426,18 @@ def create_system_table():
 
     page.add_style(page.PART.BG, page_style)
 
+    # Remove page background padding
+    page.set_style_local_pad_left(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_right(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_top(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_bottom(lv.page.PART.BG, lv.STATE.DEFAULT, 0)
+
+    # Remove scrollable container padding too
+    page.set_style_local_pad_left(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_right(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_top(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
+    page.set_style_local_pad_bottom(lv.page.PART.SCROLLABLE, lv.STATE.DEFAULT, 0)
+
     # --- Remove thick border around table ---
     table_bg = lv.style_t()
     table_bg.init()
@@ -425,12 +451,12 @@ def create_system_table():
     table_style = lv.style_t()
     table_style.init()
     # Background of table
-    table_style.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(0x101010))
+    table_style.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(0x000000))
     table_style.set_bg_opa(lv.STATE.DEFAULT, lv.OPA.COVER)
     # Text
     table_style.set_text_color(lv.STATE.DEFAULT, lv.color_hex(0xffffff))
     # Cell borders
-    table_style.set_border_color(lv.STATE.DEFAULT, lv.color_hex(0x404040))
+    table_style.set_border_color(lv.STATE.DEFAULT, lv.color_hex(0x303030))
     table_style.set_border_width(lv.STATE.DEFAULT, 1)
     # Row/column dividers
     table_style.set_pad_top(lv.STATE.DEFAULT, 2)
