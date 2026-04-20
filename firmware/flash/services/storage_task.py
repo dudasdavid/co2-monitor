@@ -10,7 +10,7 @@ import shared_variables as var
 
 log = Logger("stor", debug_enabled=False)
 
-CSV_HEADER = "timestamp,temperature,humidity,co2,eco2,tvoc,aqi,pressure,lux\n"
+CSV_HEADER = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lux\n"
 
 # ---- Helpers ----
 
@@ -151,21 +151,23 @@ def _append_sensor_row(path, limit_rows, log):
     temp = _safe(var.sensor_data.temp_aht21)
     hum = _safe(var.sensor_data.humidity_aht21)
     co2 = int(_safe(var.sensor_data.co2_scd41))
-    eco2 = int(_safe(var.sensor_data.eco2_ens160))
     tvoc = int(_safe(var.sensor_data.tvoc_ens160))
     aqi = int(_safe(var.sensor_data.aqi_ens160))
+    pm10 = _safe(var.sensor_data.pm10_sps30)
+    pm2_5 = _safe(var.sensor_data.pm2_5_sps30)
     pressure = _safe(var.sensor_data.pressure_bmp280)
     lux = _safe(var.sensor_data.lux_veml7700)
 
     # Format as strings (adjust precision as you like)
-    row = "{},{:.2f},{:.2f},{:d},{:d},{:d},{:d},{:.2f},{:.2f}\n".format(
+    row = "{},{:.2f},{:.2f},{:d},{:d},{:d},{:.2f},{:.2f},{:.2f},{:.2f}\n".format(
         ts_str,
         temp,
         hum,
         co2,
-        eco2,
         tvoc,
         aqi,
+        pm10,
+        pm2_5,
         pressure,
         lux,
     )
@@ -179,11 +181,11 @@ def _append_sensor_row(path, limit_rows, log):
         except OSError:
             # If file doesn't exist for some reason, recreate with header
             lines = []
-            header = "timestamp,temperature,humidity,co2,eco2,tvoc,aqi,pressure,lux\n"
+            header = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lux\n"
             lines.append(header)
 
         if not lines:
-            header = "timestamp,temperature,humidity,co2,eco2,tvoc,aqi,pressure,lux\n"
+            header = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lux\n"
             data_lines = []
         else:
             header = lines[0]
