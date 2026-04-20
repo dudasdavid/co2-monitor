@@ -114,7 +114,7 @@ async def serial_task(period = 1.0):
         #if error is not None:
         #    log.warning(error)
         await asyncio.sleep(0.2)
-        uart6.write(b'AQI:' + str(var.sensor_data.aqi_ens160) + ',1,2,' + str(var.sensor_data.tvoc_ens160) + '\n') # PM2_5 and PM10 is 1 and 2 as placeholder
+        uart6.write(b'AQI:' + str(var.sensor_data.aqi_ens160) + ',' + str(var.sensor_data.tvoc_ens160) + '\n')
 
         await asyncio.sleep(0.2)
         uart6.write(b'CO2:' + str(var.sensor_data.co2_scd41) + ',' + str(var.scd41_co2_peak_ppm) + ',' + str(var.scd41_co2_detected) + '\n')
@@ -127,6 +127,9 @@ async def serial_task(period = 1.0):
 
         await asyncio.sleep(0.2)
         uart6.write(b'BAT:' + str(var.system_data.bat_percentage) + '\n')
+
+        await asyncio.sleep(0.2)
+        uart6.write(b'PM:' + str(var.sensor_data.pm10_sps30) + ',' + str(var.sensor_data.pm4_sps30) + ',' + str(var.sensor_data.pm2_5_sps30) + ',' + str(var.sensor_data.pm1_sps30) + '\n')
 
         await asyncio.sleep(0.2)
         
