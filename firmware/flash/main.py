@@ -6,6 +6,8 @@ import sys
 import time
 from logger import Logger
 
+import shared_variables as var
+
 log = Logger("boot", debug_enabled=False)
 
 def is_sd_mounted(path="/sd"):
@@ -67,10 +69,10 @@ mount_sd_card()
 if "/sd/python" not in sys.path:
     sys.path.append("/sd/python")
 
-import main_staging
-
 try:
-    asyncio.run(main_staging.main())
+    if not var.debug:
+        import main_dev
+        asyncio.run(main_dev.main())
 except Exception as e:
     # Print error so you can see it in the Thonny shell
     print("FATAL ERROR in main:", e)

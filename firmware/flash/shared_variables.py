@@ -1,3 +1,5 @@
+debug = False
+
 class SensorData:
     def __init__(self):
         self.temp_aht21 = 10.1
