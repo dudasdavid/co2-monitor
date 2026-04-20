@@ -13,6 +13,10 @@ class SensorData:
         self.aqi_ens160  = 1
         self.pressure_bmp280 = 1001
         self.lux_veml7700 = 222
+        self.pm10_sps30 = 169
+        self.pm4_sps30 = 269
+        self.pm2_5_sps30 = 369
+        self.pm1_sps30 = 469
 
 
 class SystemData:

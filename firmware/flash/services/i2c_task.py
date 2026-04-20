@@ -10,6 +10,7 @@ from drivers import ds3231 as ds3231_driver
 from drivers import bmp280 as bmp280_driver
 from drivers2 import pca9685 as pca9685_driver
 from drivers2 import drv2605 as drv2605_driver
+from drivers2 import sps30 as sps30_driver
 import math
 
 # ---- Global variables ----
@@ -129,6 +130,24 @@ async def i2c_task(period = 1.0):
     drv2605.play()                     
     #drv2605.stop()
 
+    # Initialize SPS30 PM driver
+    sps30 = sps30_driver.SPS30(i2c1)
+    print("Firmware version:", sps30.firmware_version())
+    print("Product type:", sps30.product_type())
+    print("Serial number:", sps30.serial_number())
+    print("Status register:", sps30.read_status_register())
+    print("Auto cleaning interval:", sps30.read_auto_cleaning_interval(), "s")
+    #print("Set auto cleaning interval...")
+    #sps30.write_auto_cleaning_interval_days(2)
+    #await asyncio.sleep(10)
+    #print("Auto cleaning interval:", sps30.read_auto_cleaning_interval(), "s")
+    #await asyncio.sleep(5)
+    print("Starting measurement...")
+    sps30.start_measurement()
+    #await asyncio.sleep(5)
+    #print("Read data...")
+    #print(sps30.get_measurement())
+    
     i = 0
 
     #Run    
@@ -326,6 +345,14 @@ async def i2c_task(period = 1.0):
             pca9685.duty(0, 1000)
             pca9685.duty(1, 1000)
             pca9685.duty(2, 1000)
+            
+        # Mass density is in ug/m3
+        particles = sps30.get_measurement()
+        log.debug("[SPS30] particle mass density:", particles["mass_density"])
+        var.sensor_data.pm10_sps30 = particles["mass_density"]["pm10"]
+        var.sensor_data.pm4_sps30 = particles["mass_density"]["pm4.0"]
+        var.sensor_data.pm2_5_sps30 = particles["mass_density"]["pm2.5"]
+        var.sensor_data.pm1_sps30 = particles["mass_density"]["pm1.0"]
         
         var.system_data.i2c_task_timestamp = time.time()
         

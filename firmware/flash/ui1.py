@@ -129,7 +129,7 @@ def create_sensor_table():
 
     # 2 columns and 15 rows
     table.set_col_cnt(2)
-    table.set_row_cnt(11)
+    table.set_row_cnt(15)
 
     table.set_col_width(0, 250)
     table.set_col_width(1, 180)
@@ -156,8 +156,12 @@ def create_sensor_table():
     table.set_cell_value(6, 0, "eCO2 ENS160 [ppm]")
     table.set_cell_value(7, 0, "TVOC [ppb]")
     table.set_cell_value(8, 0, "AQI")
-    table.set_cell_value(9, 0, "Pressure [hPa]")
-    table.set_cell_value(10, 0, "Lux")
+    table.set_cell_value(9, 0, "PM10")
+    table.set_cell_value(10, 0, "PM4.0")
+    table.set_cell_value(11, 0, "PM2.5")
+    table.set_cell_value(12, 0, "PM1.0")
+    table.set_cell_value(13, 0, "Pressure [hPa]")
+    table.set_cell_value(14, 0, "Lux")
 
 
     # --- LVGL task: pull Python vars & update table ---
@@ -172,8 +176,12 @@ def create_sensor_table():
         table.set_cell_value(6, 1, "{}".format(int(var.sensor_data.eco2_ens160)))
         table.set_cell_value(7, 1, "{}".format(int(var.sensor_data.tvoc_ens160)))
         table.set_cell_value(8, 1, "{}".format(int(var.sensor_data.aqi_ens160)))
-        table.set_cell_value(9, 1, "{}".format(int(var.sensor_data.pressure_bmp280)))
-        table.set_cell_value(10, 1, "{:.2f}".format(var.sensor_data.lux_veml7700))
+        table.set_cell_value(9, 1, "{:.2f}".format(var.sensor_data.pm10_sps30))
+        table.set_cell_value(10, 1, "{:.2f}".format(var.sensor_data.pm4_sps30))
+        table.set_cell_value(11, 1, "{:.2f}".format(var.sensor_data.pm2_5_sps30))
+        table.set_cell_value(12, 1, "{:.2f}".format(var.sensor_data.pm1_sps30))
+        table.set_cell_value(13, 1, "{}".format(int(var.sensor_data.pressure_bmp280)))
+        table.set_cell_value(14, 1, "{:.2f}".format(var.sensor_data.lux_veml7700))
 
     # --- Update table in every 500ms ---
     lv.task_create(table_update_cb, 500, lv.TASK_PRIO.LOW, None)
