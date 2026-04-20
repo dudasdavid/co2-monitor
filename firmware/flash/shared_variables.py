@@ -44,7 +44,8 @@ class SystemData:
         self.i2c_status_ds3231  = "NA"
         self.i2c_status_pca9685  = "NA"
         self.i2c_status_drv2605  = "NA"
-        self.i2c_status_unknown = [0x69]
+        self.i2c_status_sps30  = "NA"
+        self.i2c_status_unknown = [0x666]
         self.usb_volt = 4.85
         self.bat_volt = 3.8
         self.dcdc_volt = 4.69
