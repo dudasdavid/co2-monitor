@@ -138,20 +138,67 @@ def create_co2_chart():
 
     y_grids = 3
 
-    # Some grid lines (optional)
+    # Add grid lines
     chart.set_div_line_count(y_grids, 5)
     
     # Give space for X and Y tick texts (labels)
-    chart.set_style_local_pad_bottom(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 20)
-    chart.set_style_local_pad_top(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 20)
-    chart.set_style_local_pad_left(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 50)
+    #chart.set_style_local_pad_bottom(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 20)
+    #chart.set_style_local_pad_top(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 20)
+    #chart.set_style_local_pad_left(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 50)
 
     # Y-axis range (CO2 ppm). You can change to dynamic later.
     chart.set_y_range(lv.chart.AXIS.PRIMARY_Y, 0, 3000)
 
     # Add series for CO2 (green)
     ser = chart.add_series(lv.color_hex(0x00FF00))
-
+    
+    # Set padding around chart labels
+    #chart.set_x_tick_texts("-24h\n-20h\n-16h\n-12h\n-8h\n-4h\n0h", 7, 0)
+    chart.set_style_local_pad_bottom(0,0,0)
+    chart.set_style_local_pad_top(0,0,0)
+    chart.set_style_local_pad_right(0,0,0)
+    chart.set_style_local_pad_left(0,0,0)
+    #chart.set_x_tick_length(0, 0)
+    
+    # Add X axis labels
+    x_axis_label_1 = lv.label(scr)
+    x_axis_label_1.set_text("-20h")
+    x_axis_label_1.set_pos(82, 255)
+    x_axis_label_2 = lv.label(scr)
+    x_axis_label_2.set_text("-12h")
+    x_axis_label_2.set_pos(242, 255)
+    x_axis_label_3 = lv.label(scr)
+    x_axis_label_3.set_text("-4h")
+    x_axis_label_3.set_pos(402, 255)
+    x_axis_label_1.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC0C0C0))
+    x_axis_label_1.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    x_axis_label_2.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC0C0C0))
+    x_axis_label_2.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    x_axis_label_3.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC0C0C0))
+    x_axis_label_3.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    
+    # Add Y axis labels
+    y_axis_label_1 = lv.label(scr)
+    y_axis_label_1.set_text("1000")
+    y_axis_label_1.set_pos(4, 26)
+    y_axis_label_2 = lv.label(scr)
+    y_axis_label_2.set_text("900")
+    y_axis_label_2.set_pos(4, 87)
+    y_axis_label_3 = lv.label(scr)
+    y_axis_label_3.set_text("800")
+    y_axis_label_3.set_pos(4, 149)
+    y_axis_label_4 = lv.label(scr)
+    y_axis_label_4.set_text("700")
+    y_axis_label_4.set_pos(4, 210)
+    y_axis_label_1.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC0C0C0))
+    y_axis_label_1.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    y_axis_label_2.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC0C0C0))
+    y_axis_label_2.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    y_axis_label_3.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC0C0C0))
+    y_axis_label_3.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    y_axis_label_4.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC0C0C0))
+    y_axis_label_4.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    
     def place_last_value_label(chart, ser, value, index, y_min, y_max):
         # 1—Get outer coords
         a = lv.area_t()
@@ -245,10 +292,17 @@ def create_co2_chart():
             labels.append(str(y_min + i * step))
 
         labels.reverse()
+        '''
         label_text = "\n".join(labels)
 
         chart.set_y_tick_texts(label_text, len(labels), lv.chart.AXIS.PRIMARY_Y)
         chart.set_y_tick_length(0, 0)
+        '''
+        
+        y_axis_label_1.set_text(labels[0])
+        y_axis_label_2.set_text(labels[1])
+        y_axis_label_3.set_text(labels[2])
+        y_axis_label_4.set_text(labels[3])
 
         last_val = data[-1]
         last_index = n - 1
@@ -272,17 +326,18 @@ def create_co2_chart():
     chart.set_style_local_bg_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0x000000))
     chart.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.COVER)
 
-    chart.set_style_local_line_color(lv.chart.PART.BG, lv.STATE.DEFAULT, lv.color_hex(0x202020))
+    chart.set_style_local_line_color(lv.chart.PART.BG, lv.STATE.DEFAULT, lv.color_hex(0x606060))
+    chart.set_style_local_line_color(lv.chart.PART.SERIES_BG, lv.STATE.DEFAULT, lv.color_hex(0x606060))
     chart.set_style_local_line_width(lv.chart.PART.BG, lv.STATE.DEFAULT, 1)
-    chart.set_style_local_text_color(lv.chart.PART.BG, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
+    chart.set_style_local_text_color(lv.chart.PART.BG, lv.STATE.DEFAULT, lv.color_hex(0x606060))
     co2_last_label.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0x00FF00))
     co2_last_label.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
     
     # Add a faded area effect
-    chart.set_style_local_bg_opa(lv.chart.PART.SERIES, lv.STATE.DEFAULT, lv.OPA._50)               # Max. opa.
-    chart.set_style_local_bg_grad_dir(lv.chart.PART.SERIES, lv.STATE.DEFAULT, lv.GRAD_DIR.VER)
-    chart.set_style_local_bg_main_stop(lv.chart.PART.SERIES, lv.STATE.DEFAULT, 255)                # Max opa on the top
-    chart.set_style_local_bg_grad_stop(lv.chart.PART.SERIES, lv.STATE.DEFAULT, 50)
+    #chart.set_style_local_bg_opa(lv.chart.PART.SERIES, lv.STATE.DEFAULT, lv.OPA._50)               # Max. opa.
+    #chart.set_style_local_bg_grad_dir(lv.chart.PART.SERIES, lv.STATE.DEFAULT, lv.GRAD_DIR.VER)
+    #chart.set_style_local_bg_main_stop(lv.chart.PART.SERIES, lv.STATE.DEFAULT, 255)                # Max opa on the top
+    #chart.set_style_local_bg_grad_stop(lv.chart.PART.SERIES, lv.STATE.DEFAULT, 50)
     
     # Change dot size and line width
     style_series = lv.style_t()
@@ -353,11 +408,13 @@ def create_battery_widget(parent, right_pad=6, top_pad=2):
     pct_lbl = lv.label(cont)
     pct_lbl.set_text("100%")
     #pct_lbl.align(cont, lv.ALIGN.IN_LEFT_MID, 4, 0)
+    pct_lbl.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
 
     # Battery icon
     icon = lv.label(cont)
     icon.set_text(lv.SYMBOL.BATTERY_FULL)
     #icon.align(cont, lv.ALIGN.IN_LEFT_MID, 0, 0)
+    icon.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
 
     # Charging bolt overlay (hidden by default)
     bolt = lv.label(cont)
@@ -365,6 +422,7 @@ def create_battery_widget(parent, right_pad=6, top_pad=2):
     bolt.set_text(lv.SYMBOL.CHARGE)
     bolt.set_style_local_text_opa(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
     #bolt.align(icon, lv.ALIGN.CENTER, 0, 0)
+    bolt.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
 
 
 
@@ -416,10 +474,14 @@ def create_status_bar(top_layer):
 
     #sd_icon = lv.label(status, None)
     #sd_icon.set_text(SYMBOL_SD)
+    
+    status.set_style_local_bg_color(lv.STATE.DEFAULT, 0, lv.color_hex(0x101010))
 
     screen_label = lv.label(status)
     screen_label.set_text("SYSTEM")
     screen_label.align(status, lv.ALIGN.CENTER, 0, 0)
+    
+    screen_label.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
     
     time_row = lv.cont(status)
     time_row.set_fit2(lv.FIT.TIGHT, lv.FIT.TIGHT)     # container hugs its children
@@ -437,6 +499,10 @@ def create_status_bar(top_layer):
     hour_lbl  = lv.label(time_row)
     colon_lbl = lv.label(time_row)
     min_lbl   = lv.label(time_row)
+    
+    hour_lbl.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
+    colon_lbl.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
+    min_lbl.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
 
     hour_lbl.set_text("12")
     colon_lbl.set_text(":")
