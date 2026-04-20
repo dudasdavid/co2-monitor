@@ -176,6 +176,30 @@ async def mqtt_task(period = 1.0):
              binary_sensor(f"{DEVICE_ID}_co2_detected", "CO2 Detected", f"{BASE_TOPIC}/co2_detected",
                            icon="mdi:molecule-co2", payload_on="1", payload_off="0"))
 
+        # PM1.0 (µg/m³) - no official device_class
+        _pub(client,
+             f"{DISCOVERY_PREFIX}/sensor/{DEVICE_ID}_pm1_0/config",
+             sensor(f"{DEVICE_ID}_pm1_0", "PM1.0", f"{BASE_TOPIC}/pm1_0",
+                    unit="µg/m³"))
+
+        # PM2.5 (µg/m³)
+        _pub(client,
+             f"{DISCOVERY_PREFIX}/sensor/{DEVICE_ID}_pm2_5/config",
+             sensor(f"{DEVICE_ID}_pm2_5", "PM2.5", f"{BASE_TOPIC}/pm2_5",
+                    unit="µg/m³", device_class="pm25"))
+
+        # PM4.0 (µg/m³) - no official device_class
+        _pub(client,
+             f"{DISCOVERY_PREFIX}/sensor/{DEVICE_ID}_pm4_0/config",
+             sensor(f"{DEVICE_ID}_pm4_0", "PM4.0", f"{BASE_TOPIC}/pm4_0",
+                    unit="µg/m³"))
+
+        # PM10 (µg/m³)
+        _pub(client,
+             f"{DISCOVERY_PREFIX}/sensor/{DEVICE_ID}_pm10/config",
+             sensor(f"{DEVICE_ID}_pm10", "PM10", f"{BASE_TOPIC}/pm10",
+                    unit="µg/m³", device_class="pm10"))
+
     #Run
     while True:
         
@@ -218,6 +242,14 @@ async def mqtt_task(period = 1.0):
                 client.publish("custom_sensors/co2_big_screen/low_battery", str(low_battery))
             if var.pressure is not None:
                 client.publish("custom_sensors/co2_big_screen/air_pressure", str(var.pressure))
+            if var.pm10 is not None:
+                client.publish("custom_sensors/co2_big_screen/pm10", str(var.pm10))
+            if var.pm4_0 is not None:
+                client.publish("custom_sensors/co2_big_screen/pm4_0", str(var.pm4_0))
+            if var.pm2_5 is not None:
+                client.publish("custom_sensors/co2_big_screen/pm2_5", str(var.pm2_5))
+            if var.pm1_0 is not None:
+                client.publish("custom_sensors/co2_big_screen/pm1_0", str(var.pm1_0))
                 
             await asyncio.sleep(0.1)
             log.info("Disconnecting from MQTT server...")
