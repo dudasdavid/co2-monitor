@@ -13,6 +13,8 @@ PAGE_W_PADDING = 28
 SWIPE_THRESHOLD = 40   # pixels
 LOCK_THRESHOLD  = 12  # when horizontal movement is clearly starting
 
+charging_blink = 0
+
 # ---- LVGL helper functions ----
 def show_screen(idx):
     """Load screen by index (wrap around)."""
@@ -392,7 +394,7 @@ def create_battery_widget(parent, right_pad=6, top_pad=2):
     #cont.set_fit(lv.FIT.NONE)
     #cont.set_layout(lv.LAYOUT.OFF)
     cont.set_height(parent.get_height())
-    cont.set_width(78)  # tweak if you want it tighter/wider
+    cont.set_width(40)  # tweak if you want it tighter/wider
     cont.align(parent, lv.ALIGN.IN_RIGHT_MID, -right_pad, 0)
     cont.set_fit2(lv.FIT.TIGHT, lv.FIT.TIGHT)     # container hugs its children
     cont.set_layout(lv.LAYOUT.ROW_MID)            # children placed left→right, vertically centered
@@ -405,35 +407,66 @@ def create_battery_widget(parent, right_pad=6, top_pad=2):
     cont.set_style_local_shadow_width(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 0)
 
     # Percent label (fixed width-ish so it doesn't “jump”)
-    pct_lbl = lv.label(cont)
-    pct_lbl.set_text("100%")
+    #pct_lbl = lv.label(cont)
+    #pct_lbl.set_text("100%")
     #pct_lbl.align(cont, lv.ALIGN.IN_LEFT_MID, 4, 0)
-    pct_lbl.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
+    #pct_lbl.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
+    #pct_lbl.set_style_local_text_opa(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+
+    # --- Icon container (so we can overlay stuff) ---
+    icon_cont = lv.cont(cont)
+    icon_cont.set_size(40, STATUS_BAR_H)
+    icon_cont.set_layout(lv.LAYOUT.OFF)
+
+    # remove visuals
+    icon_cont.set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    icon_cont.set_style_local_border_width(lv.obj.PART.MAIN, lv.STATE.DEFAULT, 0)
 
     # Battery icon
-    icon = lv.label(cont)
+    icon = lv.label(icon_cont)
     icon.set_text(lv.SYMBOL.BATTERY_FULL)
-    #icon.align(cont, lv.ALIGN.IN_LEFT_MID, 0, 0)
     icon.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
+    icon.align(icon_cont, lv.ALIGN.CENTER, 0, -3)
+
+    # Charging bolt shadow overlay (hidden by default)
+    bolt_shadow = lv.label(icon_cont)
+    bolt_shadow.set_text(lv.SYMBOL.CHARGE)
+    bolt_shadow.set_style_local_text_opa(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+    bolt_shadow.align(icon, lv.ALIGN.CENTER, 0, 0)
+    bolt_shadow.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0x101010))
 
     # Charging bolt overlay (hidden by default)
-    bolt = lv.label(cont)
-    # If your font has it, this looks nicer than plain "⚡"
+    bolt = lv.label(icon_cont)
     bolt.set_text(lv.SYMBOL.CHARGE)
     bolt.set_style_local_text_opa(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.OPA.TRANSP)
-    #bolt.align(icon, lv.ALIGN.CENTER, 0, 0)
-    bolt.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xCCCCCC))
+    bolt.align(icon, lv.ALIGN.CENTER, 1, 2)
+    bolt.set_style_local_text_color(lv.obj.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0xC3A100))
 
+    # --- Apply fonts style ---
+    font_style = lv.style_t()
+    font_style.init()
+    font_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_16)
+    icon.add_style(lv.label.PART.MAIN, font_style)
 
+    font_style = lv.style_t()
+    font_style.init()
+    font_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_16)
+    bolt_shadow.add_style(lv.label.PART.MAIN, font_style)
+    
+    font_style = lv.style_t()
+    font_style.init()
+    font_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_12)
+    bolt.add_style(lv.label.PART.MAIN, font_style)
 
-    w["cont"] = cont
     w["icon"] = icon
+    w["bolt_shadow"] = bolt_shadow
     w["bolt"] = bolt
-    w["pct_lbl"] = pct_lbl
+    #w["pct_lbl"] = pct_lbl
     return w
 
 
 def set_battery_widget(w, pct, charging=False):
+    global charging_blink
     """
     pct: 0..100
     charging: True/False
@@ -444,14 +477,36 @@ def set_battery_widget(w, pct, charging=False):
     w["icon"].set_text(_battery_symbol_from_pct(pct))
 
     # Fixed-width formatting to reduce visual jitter
-    w["pct_lbl"].set_text("{:>3d}%".format(pct))
+    #w["pct_lbl"].set_text("{:>3d}%".format(pct))
 
     # Show/hide bolt (keep its space by using opacity)
-    w["bolt"].set_style_local_text_opa(
-        lv.label.PART.MAIN,
-        lv.STATE.DEFAULT,
-        lv.OPA.COVER if charging else lv.OPA.TRANSP
-    )
+    if charging and charging_blink % 2 == 0:
+        w["bolt"].set_style_local_text_opa(
+            lv.label.PART.MAIN,
+            lv.STATE.DEFAULT,
+            lv.OPA.COVER
+        )
+        
+        w["bolt_shadow"].set_style_local_text_opa(
+            lv.label.PART.MAIN,
+            lv.STATE.DEFAULT,
+            lv.OPA.COVER
+        )
+
+    else:
+        w["bolt"].set_style_local_text_opa(
+            lv.label.PART.MAIN,
+            lv.STATE.DEFAULT,
+            lv.OPA.TRANSP
+        )
+        
+        w["bolt_shadow"].set_style_local_text_opa(
+            lv.label.PART.MAIN,
+            lv.STATE.DEFAULT,
+            lv.OPA.TRANSP
+        )
+        
+    charging_blink +=1
 
 
 def create_status_bar(top_layer):
