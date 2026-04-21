@@ -7,8 +7,8 @@ import utime
 import shared_variables as var
 
 def corrected_voltage(v_measured):
-    A = 1.0
-    B = 0.0
+    A = 0.9787
+    B = 0.233
     return A * v_measured + B
 
 def lipo_voltage_to_percent(v):
