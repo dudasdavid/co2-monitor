@@ -183,10 +183,12 @@ def _append_sensor_row(path, limit_rows, log):
             lines = []
             header = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lux\n"
             lines.append(header)
+            log.error("File doesn't exist or error during reading, recreate with default header!")
 
         if not lines:
             header = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lux\n"
             data_lines = []
+            log.error("File doesn't exist or empty, recreate with default header!")
         else:
             header = lines[0]
             data_lines = lines[1:]
