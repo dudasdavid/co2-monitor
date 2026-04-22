@@ -324,14 +324,60 @@ async def i2c_task(period = 1.0):
             #log.debug("[ENS160] AQI:", aqi)
             #log.debug("[ENS160] TVOC:", tvoc, "-", tvoc_rating)
             #log.debug("[ENS160] eCO2:", eco2, "-", eco2_rating)
-            
-            #var.sensor_data.temp_ens160 = temp if temp is not None else 0
-            #var.sensor_data.humidity_ens160 = rh if rh is not None else 0
-            var.sensor_data.aqi_ens160 = aqi if aqi is not None else 0
-            var.sensor_data.tvoc_ens160 = tvoc if tvoc is not None else 0
-            var.sensor_data.tvoc_rating_ens160 = tvoc_rating if tvoc_rating is not None else "N/A"
-            var.sensor_data.eco2_ens160 = eco2 if eco2 is not None else 0
-            var.sensor_data.eco2_rating_ens160 = eco2_rating if eco2_rating is not None else "N/A"
+
+            if eco2 is not None:
+                var.sensor_data.eco2_ens160 = eco2
+                if eco2 <= 800:
+                    var.sensor_data.eco2_rating_ens160 = "Excellent"
+                elif eco2 <= 1000:
+                    var.sensor_data.eco2_rating_ens160 = "Good"
+                elif eco2 <= 1500:
+                    var.sensor_data.eco2_rating_ens160 = "Moderate"
+                elif eco2 <= 2000:
+                    var.sensor_data.eco2_rating_ens160 = "Poor"
+                elif eco2 <= 5000:
+                    var.sensor_data.eco2_rating_ens160 = "Unhealthy"
+                else:
+                    var.sensor_data.eco2_rating_ens160 = "Hazardous"
+            else:  
+                var.sensor_data.eco2_ens160 = 0
+                var.sensor_data.eco2_rating_ens160 = "Unknown"
+
+            if tvoc is not None:
+                var.sensor_data.tvoc_ens160 = tvoc
+                if tvoc <= 150:
+                    var.sensor_data.tvoc_rating_ens160 = "Excellent"
+                elif tvoc <= 300:
+                    var.sensor_data.tvoc_rating_ens160 = "Good"
+                elif tvoc <= 500:
+                    var.sensor_data.tvoc_rating_ens160 = "Moderate"
+                elif tvoc <= 1000:
+                    var.sensor_data.tvoc_rating_ens160 = "Poor"
+                elif tvoc <= 3000:
+                    var.sensor_data.tvoc_rating_ens160 = "Unhealthy"
+                else:
+                    var.sensor_data.tvoc_rating_ens160 = "Hazardous"
+            else:  
+                var.sensor_data.tvoc_ens160 = 0
+                var.sensor_data.tvoc_rating_ens160 = "Unknown"
+                
+            if aqi is not None:
+                var.sensor_data.aqi_ens160 = aqi
+                if aqi == 1:
+                    var.sensor_data.aqi_rating_ens160 = "Excellent"
+                elif aqi == 2:
+                    var.sensor_data.aqi_rating_ens160 = "Good"
+                elif aqi == 3:
+                    var.sensor_data.aqi_rating_ens160 = "Moderate"
+                elif aqi == 4:
+                    var.sensor_data.aqi_rating_ens160 = "Poor"
+                elif aqi == 5:
+                    var.sensor_data.aqi_rating_ens160 = "Unhealthy"
+                else:
+                    var.sensor_data.aqi_rating_ens160 = "Unknown"
+            else:  
+                var.sensor_data.aqi_ens160 = 0
+                var.sensor_data.aqi_rating_ens160 = "Unknown"
             
             co2 = scd4x.co2
             temp = scd4x.temperature
@@ -339,7 +385,30 @@ async def i2c_task(period = 1.0):
             #log.debug("[SCD41] CO2:", co2)
             #log.debug("[SCD41] temperature:", temp)
             #log.debug("[SCD41] humidity:", rh)
-            var.sensor_data.co2_scd41 = co2 if co2 is not None else 0
+            if co2 is not None:
+                var.sensor_data.co2_scd41 = co2
+                if co2 <= 800:
+                    var.sensor_data.co2_rating_scd41 = "Excellent"
+                    var.system_data.feedback_led = "green"
+                elif co2 <= 1000:
+                    var.sensor_data.co2_rating_scd41 = "Good"
+                    var.system_data.feedback_led = "green"
+                elif co2 <= 1500:
+                    var.sensor_data.co2_rating_scd41 = "Moderate"
+                    var.system_data.feedback_led = "yellow"
+                elif co2 <= 2000:
+                    var.sensor_data.co2_rating_scd41 = "Poor"
+                    var.system_data.feedback_led = "red"
+                elif co2 <= 5000:
+                    var.sensor_data.co2_rating_scd41 = "Unhealthy"
+                    var.system_data.feedback_led = "red"
+                else:
+                    var.sensor_data.co2_rating_scd41 = "Hazardous"
+                    var.system_data.feedback_led = "red"
+            else:  
+                var.sensor_data.co2_scd41 = 0
+                var.sensor_data.co2_rating_scd41 = "Unknown"
+                var.system_data.feedback_led = "off"
             
             if temp is not None:
                 temp_cal = 0.98 * temp - 6.8
@@ -353,15 +422,6 @@ async def i2c_task(period = 1.0):
                 var.sensor_data.humidity_scd41 = rh_cal
             else:
                 var.sensor_data.humidity_scd41 = 0
-            
-            if co2 == None:
-                var.system_data.feedback_led = "off"
-            elif co2 < 1000:
-                var.system_data.feedback_led = "green"
-            elif co2 < 1500:
-                var.system_data.feedback_led = "yellow"
-            else:
-                var.system_data.feedback_led = "red"
             
             var.system_data.time_rtc = ds3231.datetime()
             #log.debug("[DS3231] RTC datetime:", var.system_data.time_rtc)

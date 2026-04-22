@@ -26,11 +26,12 @@ def create_sensor_table():
     #table.parent_page = page
 
     # 2 columns and 15 rows
-    table.set_col_cnt(2)
+    table.set_col_cnt(3)
     table.set_row_cnt(15)
 
-    table.set_col_width(0, 390)
+    table.set_col_width(0, 290)
     table.set_col_width(1, 80)
+    table.set_col_width(2, 100)
 
     '''
     # Static labels in first row
@@ -71,9 +72,13 @@ def create_sensor_table():
         table.set_cell_value(3, 1, "{:.1f}".format(var.sensor_data.humidity_aht21))
         table.set_cell_value(4, 1, "{:.1f}".format(var.sensor_data.humidity_scd41))
         table.set_cell_value(5, 1, "{}".format(int(var.sensor_data.co2_scd41)))
+        table.set_cell_value(5, 2, "{}".format(var.sensor_data.co2_rating_scd41))
         table.set_cell_value(6, 1, "{}".format(int(var.sensor_data.eco2_ens160)))
+        table.set_cell_value(6, 2, "{}".format(var.sensor_data.eco2_rating_ens160))
         table.set_cell_value(7, 1, "{}".format(int(var.sensor_data.tvoc_ens160)))
+        table.set_cell_value(7, 2, "{}".format(var.sensor_data.tvoc_rating_ens160))
         table.set_cell_value(8, 1, "{}".format(int(var.sensor_data.aqi_ens160)))
+        table.set_cell_value(8, 2, "{}".format(var.sensor_data.aqi_rating_ens160))
         table.set_cell_value(9, 1, "{:.2f}".format(var.sensor_data.pm10_sps30))
         table.set_cell_value(10, 1, "{:.2f}".format(var.sensor_data.pm4_sps30))
         table.set_cell_value(11, 1, "{:.2f}".format(var.sensor_data.pm2_5_sps30))

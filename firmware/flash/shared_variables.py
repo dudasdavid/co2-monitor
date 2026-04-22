@@ -44,11 +44,13 @@ class SensorData:
         self.humidity_aht21 = 69.1
         self.humidity_scd41 = 96.1
         self.co2_scd41 = 666
+        self.co2_rating_scd41 = "excellent"
         self.eco2_ens160 = 999
         self.eco2_rating_ens160 = "excellent"
         self.tvoc_ens160 = 100
         self.tvoc_rating_ens160 = "excellent"
         self.aqi_ens160  = 1
+        self.aqi_rating_ens160 = "excellent"
         self.pressure_bmp280 = 1001
         self.lux_veml7700 = 222
         self.pm10_sps30 = 169
