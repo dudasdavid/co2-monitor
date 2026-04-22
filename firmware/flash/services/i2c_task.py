@@ -417,7 +417,7 @@ async def i2c_task(period = 1.0):
                 temp_cal = 0.69
                 var.sensor_data.temp_scd41 = temp_cal
             
-            if rh is not None:
+            if rh is not None and temp is not None:
                 rh_cal = compensate_humidity(rh, temp, temp_cal)
                 var.sensor_data.humidity_scd41 = rh_cal
             else:
