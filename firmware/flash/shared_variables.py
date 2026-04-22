@@ -1,6 +1,6 @@
 import uasyncio as asyncio
 
-debug = True
+debug = False
 
 class SimpleQueue:
     def __init__(self):
@@ -34,7 +34,7 @@ class SimpleQueue:
                     self._event.clear()
 
 button_events = SimpleQueue()
-swipe_events = SimpleQueue()
+haptic_events = SimpleQueue()
 
 class SensorData:
     def __init__(self):
@@ -144,7 +144,8 @@ logger_current_view = logger_debug
 
 ap_request = False
 
-EVENT_SWIPE_LEFT = 1
-EVENT_SWIPE_RIGHT = 2
-EVENT_BUTTON_PRESS = 3
-EVENT_BUTTON_LONG_PRESS = 4
+EVENT_FB_SWIPE_LEFT = 1
+EVENT_FB_SWIPE_RIGHT = 2
+EVENT_FB_LONG_PRESS = 3
+EVENT_BUTTON_PRESS = 1
+EVENT_BUTTON_LONG_PRESS = 2

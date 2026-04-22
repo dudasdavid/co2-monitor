@@ -32,11 +32,11 @@ def show_screen(idx):
 
 
 def next_screen():
-    var.swipe_events.put_nowait(var.EVENT_SWIPE_LEFT)
+    var.haptic_events.put_nowait(var.EVENT_FB_SWIPE_LEFT)
     show_screen(var.current_idx + 1)
     
 def prev_screen():
-    var.swipe_events.put_nowait(var.EVENT_SWIPE_RIGHT)
+    var.haptic_events.put_nowait(var.EVENT_FB_SWIPE_RIGHT)
     show_screen(var.current_idx - 1)
     
 def swipe_event_cb(obj, event):

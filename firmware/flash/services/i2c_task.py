@@ -452,6 +452,11 @@ async def i2c_async_task():
 
     #Run
     while True:
-        event_type = await var.swipe_events.get()
+        event_type = await var.haptic_events.get()
         log.debug("Haptic event arrived:", event_type)
+        if event_type == var.EVENT_FB_SWIPE_LEFT or event_type == var.EVENT_FB_SWIPE_RIGHT:
+            drv2605.set_waveform(10)
+        else:
+            drv2605.set_waveform(52)
+            
         drv2605.play()
