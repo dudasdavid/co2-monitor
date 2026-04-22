@@ -62,10 +62,6 @@ async def mqtt_task(period = 1.0):
     }
 
     def _pub(client, topic: str, payload: dict, retain: bool = True):
-        log.error(client)
-        log.error(topic)
-        log.error(payload)
-        log.error(retain)
         client.publish(topic.encode(), json.dumps(payload).encode(), retain=retain)
 
     # ----- Helpers to create entity payloads -----
