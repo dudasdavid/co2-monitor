@@ -9,7 +9,7 @@ STATUS_BAR_H = 24
 PAGE_W_PADDING = 0
 
 # ---- Swipe handling ----
-SWIPE_THRESHOLD = 40   # pixels
+SWIPE_THRESHOLD = 60   # pixels
 LOCK_THRESHOLD  = 12  # when horizontal movement is clearly starting
 
 charging_blink = 0
@@ -98,7 +98,7 @@ def swipe_event_table_on_page_cb(page):
             # scroll the page vertically
             # NOTE: sign might feel inverted, swap if it feels wrong
             if dy != 0:
-                page.scroll_ver(int(dy*2.0))
+                page.scroll_ver(int(dy*3.0))
 
         elif event == lv.EVENT.RELEASED:
             dx = p.x - var.touch_start_x
