@@ -29,6 +29,9 @@ BREATH_TABLE = [
   30,32,35,37,40,42,45,47
 ]
 
+# Haptic driver instance is shared between synchronous (init is there) and async (based on swipe events) tasks
+drv2605 = None
+
 def is_time_diff_over_threshold(ntp_time, rtc_time, threshold_seconds=60):
     """
     ntp_time and rtc_time are tuples like:
@@ -118,6 +121,7 @@ def convert_hsv2rgb(h,s,v):
     return (int(r * 4000), int(g * 4000), int(b * 4000))
 
 async def i2c_task(period = 1.0):
+    global drv2605
     #Init
     
     # I2C1 uses PB8=D15 (SCL) / PB9=D14 (SDA) on STM32F746 builds
@@ -175,6 +179,7 @@ async def i2c_task(period = 1.0):
     drv2605.set_waveform(52)
     drv2605.play()                     
     #drv2605.stop()
+    drv2605.set_waveform(10)
 
     # Initialize SPS30 PM driver
     sps30 = sps30_driver.SPS30(i2c1)
@@ -438,3 +443,15 @@ async def i2c_task(period = 1.0):
         var.system_data.i2c_task_timestamp = time.time()
         
         await asyncio.sleep(period)
+
+async def i2c_async_task():
+    global drv2605
+    
+    #Init
+    log = Logger("haptic", debug_enabled=True)
+
+    #Run
+    while True:
+        event_type = await var.swipe_events.get()
+        log.debug("Haptic event arrived:", event_type)
+        drv2605.play()

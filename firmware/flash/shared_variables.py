@@ -1,4 +1,40 @@
-debug = False
+import uasyncio as asyncio
+
+debug = True
+
+class SimpleQueue:
+    def __init__(self):
+        self._items = []
+        self._lock = asyncio.Lock()
+        self._event = asyncio.Event()
+
+    async def put(self, item):
+        async with self._lock:
+            self._items.append(item)
+            self._event.set()
+
+    def put_nowait(self, item):
+        # Safe if everything runs on the same thread/core
+        self._items.append(item)
+        self._event.set()
+
+    async def get(self):
+        while True:
+            await self._event.wait()
+
+            async with self._lock:
+                if self._items:
+                    item = self._items.pop(0)
+
+                    if not self._items:
+                        self._event.clear()
+
+                    return item
+                else:
+                    self._event.clear()
+
+button_events = SimpleQueue()
+swipe_events = SimpleQueue()
 
 class SensorData:
     def __init__(self):
@@ -60,6 +96,8 @@ class SystemData:
         self.idle_task_timestamp = 0
         self.serial_task_timestamp = 0
         self.storage_task_timestamp = 0
+        self.io_task_timestamp = 0
+        self.button = 2
 
 
 aht21_temp_offset = 0
@@ -106,4 +144,7 @@ logger_current_view = logger_debug
 
 ap_request = False
 
-
+EVENT_SWIPE_LEFT = 1
+EVENT_SWIPE_RIGHT = 2
+EVENT_BUTTON_PRESS = 3
+EVENT_BUTTON_LONG_PRESS = 4
