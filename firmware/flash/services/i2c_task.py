@@ -445,10 +445,40 @@ async def i2c_task(period = 1.0):
             # Mass density is in ug/m3
             particles = sps30.get_measurement()
             #log.debug("[SPS30] particle mass density:", particles["mass_density"])
-            var.sensor_data.pm10_sps30 = particles["mass_density"]["pm10"]
-            var.sensor_data.pm4_sps30 = particles["mass_density"]["pm4.0"]
-            var.sensor_data.pm2_5_sps30 = particles["mass_density"]["pm2.5"]
-            var.sensor_data.pm1_sps30 = particles["mass_density"]["pm1.0"]
+            pm10 = int(particles["mass_density"]["pm10"])
+            pm4 = int(particles["mass_density"]["pm4.0"])
+            pm2_5 = int(particles["mass_density"]["pm2.5"])
+            pm1 = int(particles["mass_density"]["pm1.0"])
+            
+            var.sensor_data.pm10_sps30 = pm10
+            var.sensor_data.pm4_sps30 = pm4
+            var.sensor_data.pm2_5_sps30 = pm2_5
+            var.sensor_data.pm1_sps30 = pm1
+            
+            if pm10 <= 20:   var.sensor_data.pm10_rating_sps30 = "Excellent"
+            elif pm10 <= 50: var.sensor_data.pm10_rating_sps30 = "Good"
+            elif pm10 <= 100:var.sensor_data.pm10_rating_sps30 = "Moderate"
+            elif pm10 <= 200:var.sensor_data.pm10_rating_sps30 = "Poor"
+            else:            var.sensor_data.pm10_rating_sps30 = "Unhealthy"
+            
+            if pm4 <= 5:    var.sensor_data.pm4_rating_sps30 = "Excellent"
+            elif pm4 <= 15: var.sensor_data.pm4_rating_sps30 = "Good"
+            elif pm4 <= 35: var.sensor_data.pm4_rating_sps30 = "Moderate"
+            elif pm4 <= 75: var.sensor_data.pm4_rating_sps30 = "Poor"
+            elif pm4 <= 150:var.sensor_data.pm4_rating_sps30 = "Unhealthy"
+            else:           var.sensor_data.pm4_rating_sps30 = "Hazardous"
+            
+            if pm2_5 <= 5:    var.sensor_data.pm2_5_rating_sps30 = "Excellent"
+            elif pm2_5 <= 15: var.sensor_data.pm2_5_rating_sps30 = "Good"
+            elif pm2_5 <= 35: var.sensor_data.pm2_5_rating_sps30 = "Moderate"
+            elif pm2_5 <= 75: var.sensor_data.pm2_5_rating_sps30 = "Poor"
+            elif pm2_5 <= 150:var.sensor_data.pm2_5_rating_sps30 = "Unhealthy"
+            else:             var.sensor_data.pm2_5_rating_sps30 = "Hazardous"
+            
+            if pm1 <= 5:   var.sensor_data.pm1_rating_sps30 = "Excellent"
+            elif pm1 <= 10:var.sensor_data.pm1_rating_sps30 = "Good"
+            elif pm1 <= 25:var.sensor_data.pm1_rating_sps30 = "Moderate"
+            else:          var.sensor_data.pm1_rating_sps30 = "Poor"
         
         #---------------
         # LED animation
