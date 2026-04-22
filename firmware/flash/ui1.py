@@ -1,119 +1,17 @@
 import lvgl as lv
 from math import ceil
+import ui_generic as ui
 
 # ---- Global variables ----
 import shared_variables as var
-
-SCREEN_H = 272
-SCREEN_W = 480
-STATUS_BAR_H = 24
-PAGE_W_PADDING = 0
-
-# ---- Swipe handling ----
-SWIPE_THRESHOLD = 40   # pixels
-LOCK_THRESHOLD  = 12  # when horizontal movement is clearly starting
-
-# ---- LVGL helper functions ----
-def show_screen(idx):
-    """Load screen by index (wrap around)."""
-    #global current_idx
-    if not var.screens:
-        return
-    var.current_idx = idx % len(var.screens)
-    lv.scr_load(var.screens[var.current_idx])
-
-
-def next_screen():
-    show_screen(var.current_idx + 1)
-
-
-def prev_screen():
-    show_screen(var.current_idx - 1)
-
-def swipe_event_cb(obj, event):
-    #global touch_start_x, touch_start_y
-
-    if event == lv.EVENT.PRESSED:
-        # Remember where the touch started
-        indev = lv.indev_get_act()
-        if not indev:
-            return
-        p = lv.point_t()
-        indev.get_point(p)
-        var.touch_start_x = p.x
-        var.touch_start_y = p.y
-
-    elif event == lv.EVENT.RELEASED:
-        # Compare start and end to detect swipe direction
-        indev = lv.indev_get_act()
-        if not indev:
-            return
-        p = lv.point_t()
-        indev.get_point(p)
-        dx = p.x - var.touch_start_x
-        dy = p.y - var.touch_start_y
-
-        if abs(dx) > abs(dy) and abs(dx) > SWIPE_THRESHOLD:
-            if dx < 0:
-                # Swipe left go to next screen
-                next_screen()
-            else:
-                # Swipe right go to previous screen
-                prev_screen()
-
-def swipe_event_table_on_page_cb(page):
-    """
-    Returns an event callback that knows which page to scroll.
-    """
-    def swipe_event_table_cb(obj, event):
-        #global var.touch_start_x, var.touch_start_y, var.last_y
-
-        indev = lv.indev_get_act()
-        if not indev:
-            return
-
-        p = lv.point_t()
-        indev.get_point(p)
-
-        if event == lv.EVENT.PRESSED:
-            # remember starting point
-            var.touch_start_x = p.x
-            var.touch_start_y = p.y
-            var.last_y = p.y
-
-        elif event == lv.EVENT.PRESSING:
-            # handle vertical scrolling while finger moves
-            dy = p.y - var.last_y
-            var.last_y = p.y
-
-            # scroll the page vertically
-            # NOTE: sign might feel inverted, swap if it feels wrong
-            if dy != 0:
-                page.scroll_ver(int(dy*2.0))
-
-        elif event == lv.EVENT.RELEASED:
-            dx = p.x - var.touch_start_x
-            dy = p.y - var.touch_start_y
-
-            # Only treat as horizontal swipe if clearly more horizontal than vertical
-            if abs(dx) > abs(dy) and abs(dx) > SWIPE_THRESHOLD:
-                if dx < 0:
-                    # swipe left -> next screen
-                    next_screen()
-                else:
-                    # swipe right -> previous screen
-                    prev_screen()
-            # Otherwise: it was mostly vertical we already scrolled the page
-            
-    return swipe_event_table_cb
 
 def create_sensor_table():
     scr = lv.obj()
 
     # This will be the scrollable area
     page = lv.page(scr)
-    page.set_size(SCREEN_W, SCREEN_H-STATUS_BAR_H)                 # visible "window" size
-    page.align(scr, lv.ALIGN.IN_TOP_MID, 0, STATUS_BAR_H)
+    page.set_size(ui.SCREEN_W, ui.SCREEN_H-ui.STATUS_BAR_H)                 # visible "window" size
+    page.align(scr, lv.ALIGN.IN_TOP_MID, 0, ui.STATUS_BAR_H)
 
     # Optional: control scrollbar behaviour
     page.set_scrollbar_mode(lv.SCROLLBAR_MODE.AUTO)
@@ -121,7 +19,7 @@ def create_sensor_table():
     # page.set_scrollbar_mode(lv.SCROLLBAR_MODE.DRAG)  # only when dragging
 
     table = lv.table(page)
-    table.set_size(SCREEN_W-PAGE_W_PADDING, 500)
+    table.set_size(ui.SCREEN_W-ui.PAGE_W_PADDING, 500)
     table.align(page, lv.ALIGN.IN_TOP_MID, 0, 0)
 
     #page.glue_obj(table)
@@ -183,12 +81,12 @@ def create_sensor_table():
         table.set_cell_value(13, 1, "{}".format(int(var.sensor_data.pressure_bmp280)))
         table.set_cell_value(14, 1, "{:.2f}".format(var.sensor_data.lux_veml7700))
 
-    # --- Update table in every 500ms ---
-    lv.task_create(table_update_cb, 500, lv.TASK_PRIO.LOW, None)
+    # --- Update table in every 2000ms ---
+    lv.task_create(table_update_cb, 2000, lv.TASK_PRIO.LOW, None)
 
     # --- Enable swipe on the full screen and table ---
-    scr.set_event_cb(swipe_event_cb)
-    table.set_event_cb(swipe_event_table_on_page_cb(page))
+    scr.set_event_cb(ui.swipe_event_cb)
+    table.set_event_cb(ui.swipe_event_table_on_page_cb(page))
 
     # --- Screen style ---
     style_scr = lv.style_t()
@@ -282,8 +180,8 @@ def create_system_table():
     
     # This will be the scrollable area
     page = lv.page(scr)
-    page.set_size(SCREEN_W, SCREEN_H-STATUS_BAR_H)                 # visible "window" size
-    page.align(scr, lv.ALIGN.IN_TOP_MID, 0, STATUS_BAR_H)
+    page.set_size(ui.SCREEN_W, ui.SCREEN_H-ui.STATUS_BAR_H)                 # visible "window" size
+    page.align(scr, lv.ALIGN.IN_TOP_MID, 0, ui.STATUS_BAR_H)
 
     # Optional: control scrollbar behaviour
     page.set_scrollbar_mode(lv.SCROLLBAR_MODE.AUTO)
@@ -291,7 +189,7 @@ def create_system_table():
     # page.set_scrollbar_mode(lv.SCROLLBAR_MODE.DRAG)  # only when dragging
 
     table = lv.table(page)
-    table.set_size(SCREEN_W-PAGE_W_PADDING, 500)
+    table.set_size(ui.SCREEN_W-ui.PAGE_W_PADDING, 500)
     table.align(page, lv.ALIGN.IN_TOP_MID, 0, 0)
 
     #page.glue_obj(table)
@@ -403,12 +301,12 @@ def create_system_table():
         table.set_cell_value(33, 1, "{}".format(var.system_data.storage_task_timestamp))
 
 
-    # --- Update table in every 1000ms ---
-    lv.task_create(table_update_cb, 1000, lv.TASK_PRIO.LOW, None)
+    # --- Update table in every 2000ms ---
+    lv.task_create(table_update_cb, 2000, lv.TASK_PRIO.LOW, None)
 
     # --- Enable swipe on the full screen and table ---
-    scr.set_event_cb(swipe_event_cb)
-    table.set_event_cb(swipe_event_table_on_page_cb(page))
+    scr.set_event_cb(ui.swipe_event_cb)
+    table.set_event_cb(ui.swipe_event_table_on_page_cb(page))
 
     # --- Screen style ---
     style_scr = lv.style_t()
@@ -497,8 +395,6 @@ def create_system_table():
     var.screens.append(scr)
     var.screen_names.append("System")
     return scr
-
-
     
 def create_console_log():
     
@@ -508,20 +404,20 @@ def create_console_log():
     
     # Root container
     root = lv.cont(scr, None)
-    root.set_size(SCREEN_W, SCREEN_H-STATUS_BAR_H)
-    root.align(scr, lv.ALIGN.IN_TOP_MID, 0, STATUS_BAR_H)
+    root.set_size(ui.SCREEN_W, ui.SCREEN_H-ui.STATUS_BAR_H)
+    root.align(scr, lv.ALIGN.IN_TOP_MID, 0, ui.STATUS_BAR_H)
     root.set_fit(lv.FIT.NONE)
     root.set_layout(lv.LAYOUT.COLUMN_MID)   # vertical stacking
     
     # 1) Create the scrollable page
     page = lv.page(root)
-    page.set_size(SCREEN_W, SCREEN_H-STATUS_BAR_H-BTN_BAR_H)
+    page.set_size(ui.SCREEN_W, ui.SCREEN_H-ui.STATUS_BAR_H-BTN_BAR_H)
     #page.align(scr, lv.ALIGN.IN_TOP_MID, 0, 0)
     page.set_scrollbar_mode(lv.SCROLLBAR_MODE.AUTO)
     #page.set_fit2(lv.FIT.FLOOD, lv.FIT.PARENT)
     #page.set_scrl_fit2(lv.FIT.FLOOD, lv.FIT.TIGHT)   # horizontal fill, vertical = content height
     scrl = page.get_child(None)
-    scrl.set_width(SCREEN_W)
+    scrl.set_width(ui.SCREEN_W)
 
     # 2) Create the label inside the page
     log_label = lv.label(page)
@@ -714,13 +610,13 @@ def create_console_log():
         if not var.logger_paused:
             page_scroll_to_bottom(page)
         
-    # --- Update time in every 500ms ---
-    lv.task_create(update_log_cb, 500, lv.TASK_PRIO.LOW, None)
+    # --- Update time in every 1000ms ---
+    lv.task_create(update_log_cb, 1000, lv.TASK_PRIO.LOW, None)
     
     # --- Enable swipe on the full screen and table ---
-    scr.set_event_cb(swipe_event_cb)
+    scr.set_event_cb(ui.swipe_event_cb)
     scrl = page.get_child(None)
-    scrl.set_event_cb(swipe_event_table_on_page_cb(page))
+    scrl.set_event_cb(ui.swipe_event_table_on_page_cb(page))
 
     style_checked = lv.style_t()
     style_checked.init()
