@@ -11,17 +11,19 @@ import uasyncio as asyncio
 import machine
 from services.idle_task import idle_task
 from services.serial_task import serial_task
-from services.i2c_task import i2c_task
+from services.i2c_task import i2c_task, i2c_async_task
 from services.backlight_task import backlight_task
 from services.storage_task import storage_task
 from services.history_task import history_task
 from services.adc_task import adc_task
+from services.io_task import io_task
 
 from logger import Logger
 
 # UI will be loaded from SD card
 import ui1
 import ui2
+import ui_generic
 
 # ---- Global variables ----
 import shared_variables as var
@@ -68,11 +70,13 @@ async def main():
     # 1) spawn threads
     asyncio.create_task(idle_task(5.0))
     asyncio.create_task(serial_task(1))
-    asyncio.create_task(i2c_task(0.3))
+    asyncio.create_task(i2c_task(0.1))
+    asyncio.create_task(i2c_async_task())
     asyncio.create_task(backlight_task(0.1))
     asyncio.create_task(storage_task(3))
     asyncio.create_task(history_task(2))
     asyncio.create_task(adc_task(1))
+    asyncio.create_task(io_task(2))
 
     # 3) main loop can do supervision / LEDs / watchdog
     led = machine.Pin("LED", machine.Pin.OUT)
@@ -85,10 +89,9 @@ async def main():
     #ui2.create_screen(0x202040, "Screen 1")
     #ui2.create_screen(0x204020, "Screen 2")
 
-    ui1.show_screen(0)   # start with screen 0
+    ui_generic.create_status_bar(top_layer)
 
-    ui2.create_status_bar(top_layer)
-
+    ui_generic.show_screen(0)   # start with screen 0
 
     log.info("Free RAM after lv.obj():", gc.mem_free())
 
