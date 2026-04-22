@@ -240,9 +240,11 @@ async def wifi_setup_http_server(log):
 async def wifi_connect(wlan, timeout_s = 30):
     SSID, PASSWORD = load_wifi_creds()
     
-
     # ---- CONNECT TO WIFI ----
     wlan.active(True)
+    # Set TX power in dBm
+    wlan.config(txpower=8)   # example: lower power
+    # wlan.config(txpower=20)  # example: near maximum
     wlan.connect(SSID, PASSWORD)
 
     start_ms = _now_ms()
