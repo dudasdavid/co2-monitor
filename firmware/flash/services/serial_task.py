@@ -71,8 +71,10 @@ async def serial_task(period = 1.0):
     #Init
     uart6 = UART(6, baudrate=115200, bits=8, parity=None, stop=1, timeout=1000)
     
-    reset_request = pyb.Pin('D12', Pin.OUT)
-    reset_request.value(1) # 0 is reset request
+    reset_request = pyb.Pin('D12', pyb.Pin.OUT)
+    reset_request.value(0) # Reset
+    await asyncio.sleep(2)
+    reset_request.value(1) # Enable Wifi module
 
     #Run
     while True:
