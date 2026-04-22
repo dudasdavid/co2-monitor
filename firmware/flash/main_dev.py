@@ -17,6 +17,7 @@ from services.storage_task import storage_task
 from services.history_task import history_task
 from services.adc_task import adc_task
 from services.io_task import io_task
+from services.event_handler_task import event_handler_task
 
 from logger import Logger
 
@@ -77,6 +78,7 @@ async def main():
     asyncio.create_task(history_task(2))
     asyncio.create_task(adc_task(1))
     asyncio.create_task(io_task(2))
+    asyncio.create_task(event_handler_task())
 
     # 3) main loop can do supervision / LEDs / watchdog
     led = machine.Pin("LED", machine.Pin.OUT)
