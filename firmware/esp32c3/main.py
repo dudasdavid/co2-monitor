@@ -7,6 +7,7 @@ from services.led_task import led_task
 from services.ap_auto_disable_task import ap_auto_disable_task
 from services.serial_task import serial_task
 from services.display_task import display_task
+from services.io_task import io_task
 
 import uasyncio as asyncio
 
@@ -31,6 +32,7 @@ async def main():
     asyncio.create_task(ap_auto_disable_task(1))
     asyncio.create_task(serial_task(0.05))
     asyncio.create_task(display_task(0.05))
+    asyncio.create_task(io_task(0.5))
 
     while True:
     #    #wdt.feed()
