@@ -97,13 +97,19 @@ def _ensure_log_file(path, log):
         if _file_exists(bak):
             _safe_remove(bak)
             log.info("Removed backup log file:", bak)
+        else:
+            log.info("There is no .bak file to be removed")
         return
+    else:
+        log.error("CSV exist:", _file_exists(csv), "CSV valid:", _is_valid_csv(csv))
 
     # 3) CSV missing or invalid → try restore from backup
     if _file_exists(bak) and _is_valid_csv(bak):
         if _safe_rename(bak, csv):
             log.warning("Restored log file from backup:", csv)
             return
+    else:
+        log.warning("CSV is missing and ther is no backup to restore")
 
     # 4) Nothing usable → create fresh CSV with header
     try:
