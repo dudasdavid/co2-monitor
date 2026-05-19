@@ -11,7 +11,10 @@ HTTP_STATE = {
 
 _http_lock = asyncio.Lock()
 
-UTC_OFFSET = 1 * 3600
+serial_number = 1
+hostname = "CO2-BigScreen-SNr"+str(serial_number)
+
+UTC_OFFSET = 0 * 3600
 
 ap_request = False
 ap_enabled = False
@@ -23,6 +26,7 @@ ssid_save_successful = False
 wifi_ip = None
 wifi_sleep = False
 sleep_till_next_connection = 0
+mqqt_server_connection = "Disconnected"
 
 occupancy_detected = False
 active = True
