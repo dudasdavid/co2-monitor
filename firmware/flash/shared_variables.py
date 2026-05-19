@@ -70,12 +70,12 @@ class SensorData:
 
 class SystemData:
     def __init__(self):
-        self.time_ntp = "Not connected"
+        self.time_ntp = "ESP32C3 is OFFLINE"
         self.time_rtc = "2025-11-20 20:00:10"
         self.time_local = "NA"
-        self.status_wifi = "Not Connected"
-        self.status_ap = "Not Connected"
-        self.status_mqtt = "Not Connected"
+        self.status_wifi = "ESP32C3 is OFFLINE"
+        self.status_ap = "ESP32C3 is OFFLINE"
+        self.status_mqtt = "ESP32C3 is OFFLINE"
         self.status_sd = "Offline"
         self.total_space_flash = 690
         self.used_space_flash = 69
