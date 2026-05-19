@@ -120,6 +120,11 @@ def convert_hsv2rgb(h,s,v):
 
     return (int(r * 4000), int(g * 4000), int(b * 4000))
 
+def ema(old, new, alpha):
+    if old is None:
+        return new
+    return old + alpha * (new - old)
+
 async def i2c_task(period = 1.0):
     global drv2605
     #Init
@@ -493,10 +498,17 @@ async def i2c_task(period = 1.0):
             pm2_5 = int(particles["mass_density"]["pm2.5"])
             pm1 = int(particles["mass_density"]["pm1.0"])
             
-            var.sensor_data.pm10_sps30 = pm10
-            var.sensor_data.pm4_sps30 = pm4
-            var.sensor_data.pm2_5_sps30 = pm2_5
-            var.sensor_data.pm1_sps30 = pm1
+            # Apply fast filtering for displaying data
+            var.sensor_data.pm10_sps30  = ema(var.sensor_data.pm10_sps30,  pm10,  var.sps30_alpha_fast)
+            var.sensor_data.pm4_sps30   = ema(var.sensor_data.pm4_sps30,   pm4,   var.sps30_alpha_fast)
+            var.sensor_data.pm2_5_sps30 = ema(var.sensor_data.pm2_5_sps30, pm2_5, var.sps30_alpha_fast)
+            var.sensor_data.pm1_sps30   = ema(var.sensor_data.pm1_sps30,   pm1,   var.sps30_alpha_fast)
+            
+            # Apply slow filtering for logging to MQTT
+            var.sensor_data.pm10_filtered_sps30  = ema(var.sensor_data.pm10_filtered_sps30,  pm10,  var.sps30_alpha_slow)
+            var.sensor_data.pm4_filtered_sps30   = ema(var.sensor_data.pm4_filtered_sps30,   pm4,   var.sps30_alpha_slow)
+            var.sensor_data.pm2_5_filtered_sps30 = ema(var.sensor_data.pm2_5_filtered_sps30, pm2_5, var.sps30_alpha_slow)
+            var.sensor_data.pm1_filtered_sps30   = ema(var.sensor_data.pm1_filtered_sps30,   pm1,   var.sps30_alpha_slow)
             
             if pm10 <= 20:   var.sensor_data.pm10_rating_sps30 = "Excellent"
             elif pm10 <= 50: var.sensor_data.pm10_rating_sps30 = "Good"

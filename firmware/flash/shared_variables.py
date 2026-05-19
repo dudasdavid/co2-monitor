@@ -53,13 +53,17 @@ class SensorData:
         self.aqi_rating_ens160 = "unknown"
         self.pressure_bmp280 = 1001
         self.lux_veml7700 = 222
-        self.pm10_sps30 = 169
+        self.pm10_sps30 = None
+        self.pm10_filtered_sps30 = None
         self.pm10_rating_sps30 = "unknown"
-        self.pm4_sps30 = 269
+        self.pm4_sps30 = None
+        self.pm4_filtered_sps30 = None
         self.pm4_rating_sps30 = "unknown"
-        self.pm2_5_sps30 = 369
+        self.pm2_5_sps30 = None
+        self.pm2_5_filtered_sps30 = None
         self.pm2_5_rating_sps30 = "unknown"
-        self.pm1_sps30 = 469
+        self.pm1_sps30 = None
+        self.pm1_filtered_sps30 = None
         self.pm1_rating_sps30 = "unknown"
 
 
@@ -105,6 +109,10 @@ class SystemData:
         self.io_task_timestamp = 0
         self.button = 2
 
+
+# SPS30 filter strength (lower = smoother but slower)
+sps30_alpha_slow = 0.05
+sps30_alpha_fast = 0.2
 
 aht21_temp_offset = 0
 aht21_humidity_offset = 0
