@@ -111,8 +111,8 @@ class SystemData:
 
 
 # SPS30 filter strength (lower = smoother but slower)
-sps30_alpha_slow = 0.05
-sps30_alpha_fast = 0.2
+sps30_alpha_slow = 0.03
+sps30_alpha_fast = 0.15
 
 aht21_temp_offset = 0
 aht21_humidity_offset = 0

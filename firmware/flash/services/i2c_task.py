@@ -290,8 +290,8 @@ async def i2c_task(period = 1.0):
                 
             var.system_data.i2c_status_unknown = devices
 
-        # Only read sensors in every 30th loop which is 3s
-        if i % 30 == 0:
+        # Only read sensors in every 10th loop which is 1s
+        if i % 10 == 0:
             
             ##############################################
             ########## VEML7700 light sensor #############
@@ -307,7 +307,7 @@ async def i2c_task(period = 1.0):
                 var.sensor_data.lux_veml7700 = 0
             
             # Add a small sleep that even driven task can take the bus
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
             
             temp = aht21_sensor.temperature + var.aht21_temp_offset
             rh = aht21_sensor.relative_humidity
@@ -331,7 +331,7 @@ async def i2c_task(period = 1.0):
                 var.sensor_data.humidity_aht21 = 0
 
             # Add a small sleep that even driven task can take the bus
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
 
             ##############################################
             ############ ENS160 TVOC sensor ##############
@@ -400,7 +400,7 @@ async def i2c_task(period = 1.0):
                 var.sensor_data.aqi_rating_ens160 = "Unknown"
             
             # Add a small sleep that even driven task can take the bus
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
             
             ##############################################
             ############# SCD41 CO2 sensor ###############
@@ -451,7 +451,7 @@ async def i2c_task(period = 1.0):
                 var.sensor_data.humidity_scd41 = 0
             
             # Add a small sleep that even driven task can take the bus
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
             
             ##############################################
             ########## DS3231 real time clock ############
@@ -465,7 +465,7 @@ async def i2c_task(period = 1.0):
                 ds3231.datetime(var.system_data.time_ntp)
             
             # Add a small sleep that even driven task can take the bus
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
             
             ##############################################
             ########## BMP280 pressure sensor ############
@@ -484,7 +484,7 @@ async def i2c_task(period = 1.0):
                 var.sensor_data.temp_bmp280 = 0
         
             # Add a small sleep that even driven task can take the bus
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
         
             ##############################################
             ########## SPS30 particle sensor #############
@@ -536,7 +536,7 @@ async def i2c_task(period = 1.0):
             else:          var.sensor_data.pm1_rating_sps30 = "Poor"
             
             # Add a small sleep that even driven task can take the bus
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
         
         ##############################################
         ### LED animation with PCA9685 PWM driver ####
