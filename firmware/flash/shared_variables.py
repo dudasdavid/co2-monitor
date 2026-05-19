@@ -99,7 +99,7 @@ class SystemData:
         self.ideal_diode_volt = 5.0
         self.bat_percentage = 69
         self.charging = False
-        self.feedback_led = "green"
+        self.feedback_led = [0,0,1000]
         self.adc_task_timestamp = 0
         self.backlight_task_timestamp = 0
         self.history_task_timestamp = 0

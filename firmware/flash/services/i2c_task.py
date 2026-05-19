@@ -18,17 +18,6 @@ import shared_variables as var
 
 log = Logger("i2c", debug_enabled=False)
 
-# 128-step breathing table, values 1..100
-BREATH_TABLE = [
-  50,52,55,57,60,62,65,67,70,72,75,77,79,82,84,86,
-  88,90,92,94,95,97,98,99,100,100,100,100,99,98,97,95,
-  94,92,90,88,86,84,82,79,77,75,72,70,67,65,62,60,
-  57,55,52,50,47,45,42,40,37,35,32,30,28,25,23,21,
-  19,17,15,13,11,9,8,6,5,3,2,1,0,0,0,0,
-  1,2,3,5,6,8,9,11,13,15,17,19,21,23,25,28,
-  30,32,35,37,40,42,45,47
-]
-
 # Haptic driver instance is shared between synchronous (init is there) and async (based on swipe events) tasks
 drv2605 = None
 
@@ -84,41 +73,6 @@ def compensate_humidity(rh_raw: float, t_raw: float, t_cal: float) -> float:
 
     # clamp to physical limits
     return max(0.0, min(100.0, rh_cal))
-
-def convert_hsv2rgb(h,s,v):
-    """
-    Convert HSV (Hue 0–360, Saturation 0–100, Value 0–100)
-    to RGB (each 0–4000)
-    """
-    s /= 100.0
-    v /= 100.0
-
-    if s == 0:
-        r = g = b = int(v * 4000)
-        return (r, g, b)
-
-    h = h % 360
-    h_div = h / 60
-    i = int(h_div)
-    f = h_div - i
-    p = v * (1 - s)
-    q = v * (1 - s * f)
-    t = v * (1 - s * (1 - f))
-
-    if i == 0:
-        r, g, b = v, t, p
-    elif i == 1:
-        r, g, b = q, v, p
-    elif i == 2:
-        r, g, b = p, v, t
-    elif i == 3:
-        r, g, b = p, q, v
-    elif i == 4:
-        r, g, b = t, p, v
-    else:
-        r, g, b = v, p, q
-
-    return (int(r * 4000), int(g * 4000), int(b * 4000))
 
 def ema(old, new, alpha):
     if old is None:
@@ -205,8 +159,6 @@ async def i2c_task(period = 1.0):
     #log.info("[SPS30]", sps30.get_measurement())
     
     i = -1
-    led_idx = 0
-
     #Run    
     while True:
         
@@ -292,7 +244,6 @@ async def i2c_task(period = 1.0):
 
         # Only read sensors in every 10th loop which is 1s
         if i % 10 == 0:
-            
             ##############################################
             ########## VEML7700 light sensor #############
             ##############################################
@@ -416,26 +367,19 @@ async def i2c_task(period = 1.0):
                 var.sensor_data.co2_scd41 = co2
                 if co2 <= 800:
                     var.sensor_data.co2_rating_scd41 = "Excellent"
-                    var.system_data.feedback_led = "green"
                 elif co2 <= 1000:
                     var.sensor_data.co2_rating_scd41 = "Good"
-                    var.system_data.feedback_led = "green"
                 elif co2 <= 1500:
                     var.sensor_data.co2_rating_scd41 = "Moderate"
-                    var.system_data.feedback_led = "yellow"
                 elif co2 <= 2000:
                     var.sensor_data.co2_rating_scd41 = "Poor"
-                    var.system_data.feedback_led = "red"
                 elif co2 <= 5000:
                     var.sensor_data.co2_rating_scd41 = "Unhealthy"
-                    var.system_data.feedback_led = "red"
                 else:
                     var.sensor_data.co2_rating_scd41 = "Hazardous"
-                    var.system_data.feedback_led = "red"
             else:  
                 var.sensor_data.co2_scd41 = 0
                 var.sensor_data.co2_rating_scd41 = "Unknown"
-                var.system_data.feedback_led = "off"
             
             if temp is not None:
                 temp_cal = 0.98 * temp - 6.8
@@ -541,52 +485,12 @@ async def i2c_task(period = 1.0):
         ##############################################
         ### LED animation with PCA9685 PWM driver ####
         ##############################################
-        
-        # LUT sinusoidal breathing animation
-        v_breath = BREATH_TABLE[led_idx]
-        led_idx += 2
-        if led_idx >= len(BREATH_TABLE):
-            led_idx = 0
             
-        scale = 1 # TODO: scale based on lux
-        v_breath_scaled = v_breath * scale
+        #log.info(var.system_data.feedback_led)
         
-        # To avoid low yellow turning to red
-        if v_breath_scaled < 0.5:
-            v_breath_scaled = 0.5
-        
-        if var.system_data.feedback_led == "green":
-            h = 120
-            s = 100
-            
-
-        elif var.system_data.feedback_led == "yellow":
-            h = 48
-            s = 100
-            
-        elif var.system_data.feedback_led == "red":
-            h = 0
-            s = 100
-
-        elif var.system_data.feedback_led == "blue":
-            h = 210
-            s = 100
-
-        elif var.system_data.feedback_led == "off":
-            h = 0
-            s = 0
-            v_breath_scaled = 0
-
-        else: # Default white
-            h = 0
-            s = 0
-            
-
-        rgb = convert_hsv2rgb(h, s, v_breath_scaled)
-        
-        pca9685.duty(0, rgb[2])
-        pca9685.duty(1, rgb[1])
-        pca9685.duty(2, rgb[0])
+        pca9685.duty(0, var.system_data.feedback_led[2])
+        pca9685.duty(1, var.system_data.feedback_led[1])
+        pca9685.duty(2, var.system_data.feedback_led[0])
         
         var.system_data.i2c_task_timestamp = time.time()
         
