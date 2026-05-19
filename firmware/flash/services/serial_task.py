@@ -135,7 +135,7 @@ async def serial_task(period = 1.0):
         uart6.write(b'BAT:' + str(var.system_data.bat_percentage) + '\n')
 
         await asyncio.sleep(0.2)
-        uart6.write(b'PM:' + str(var.sensor_data.pm10_filtered_sps30) + ',' + str(var.sensor_data.pm4_filtered_sps30) + ',' + str(var.sensor_data.pm2_5_filtered_sps30) + ',' + str(var.sensor_data.pm1_filtered_sps30) + '\n')
+        uart6.write(b'PM:' + "{:.2f}".format(var.sensor_data.pm10_filtered_sps30) + ',' + "{:.2f}".format(var.sensor_data.pm4_filtered_sps30) + ',' + "{:.2f}".format(var.sensor_data.pm2_5_filtered_sps30) + ',' + "{:.2f}".format(var.sensor_data.pm1_filtered_sps30) + '\n')
 
         await asyncio.sleep(0.2)
         
