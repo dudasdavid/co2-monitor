@@ -1,6 +1,6 @@
 import lvgl as lv
 from math import ceil
-import ui_generic as ui
+from ui import ui_generic as ui
 
 # ---- Global variables ----
 import shared_variables as var

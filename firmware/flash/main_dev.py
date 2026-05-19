@@ -23,9 +23,9 @@ from services.asyncio_jitter_monitor import asyncio_jitter_monitor
 from logger import Logger
 
 # UI will be loaded from SD card
-import ui1
-import ui2
-import ui_generic
+from ui import ui1
+from ui import ui2
+from ui import ui_generic
 
 # ---- Global variables ----
 import shared_variables as var

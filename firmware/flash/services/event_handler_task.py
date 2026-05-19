@@ -1,7 +1,7 @@
 import uasyncio as asyncio
 from logger import Logger
 import time
-import ui_generic
+from ui import ui_generic
 
 # ---- Global variables ----
 import shared_variables as var
