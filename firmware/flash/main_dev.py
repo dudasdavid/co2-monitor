@@ -72,8 +72,8 @@ async def main():
     if var.debug:
         asyncio.create_task(asyncio_jitter_monitor(50)) 
 
-    # 1) spawn threads
-    asyncio.create_task(idle_task(5.0))
+    # 1) Spawn threads
+    asyncio.create_task(idle_task(3))
     asyncio.create_task(serial_task(1))
     asyncio.create_task(i2c_task(0.1))
     asyncio.create_task(i2c_async_task())
