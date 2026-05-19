@@ -354,7 +354,8 @@ def create_status_bar(top_layer):
     hour_lbl.set_text("12")
     colon_lbl.set_text(":")
     min_lbl.set_text("34")
-      
+    
+    previous_hour = ""
     previous_minute = ""
     previous_label = ""
     sec = 0
@@ -419,13 +420,13 @@ def create_status_bar(top_layer):
             return
     '''
     def update_time_labels_cb(timer):
-        nonlocal sec, previous_minute, batt
+        nonlocal sec, previous_minute, previous_hour, batt
         # read actual time from your var
-        rtc = var.system_data.time_rtc
+        local_time = var.system_data.time_local
 
-        if rtc is not None and type(rtc) == tuple:
-            hour = rtc[4]
-            minute = rtc[5]
+        if local_time is not None and type(local_time) == tuple:
+            hour = local_time[4]
+            minute = local_time[5]
         else:
             hour = 12
             minute = 34
@@ -443,17 +444,20 @@ def create_status_bar(top_layer):
             
         set_battery_widget(batt, int(var.system_data.bat_percentage), var.system_data.charging)
             
-        if minute != previous_minute:
+        if hour != previous_hour:
             # format HH:MM with leading zeros
-            #s = "{:02}  {:02}".format(hour, minute)
             s = "{:02}".format(hour)
             hour_lbl.set_text(s)
+            
+            previous_hour = hour
 
+        if minute != previous_minute:
+            # format HH:MM with leading zeros
             s = "{:02}".format(minute)
             min_lbl.set_text(s)
             
             previous_minute = minute
-            
+
         else:
             return
         
