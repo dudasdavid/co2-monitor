@@ -18,6 +18,7 @@ from services.history_task import history_task
 from services.adc_task import adc_task
 from services.io_task import io_task
 from services.event_handler_task import event_handler_task
+from services.asyncio_jitter_monitor import asyncio_jitter_monitor
 
 from logger import Logger
 
@@ -67,6 +68,9 @@ async def main():
     
     top_layer = lv.layer_top()
     
+    # 0) Spawn scheduling monitor
+    if var.debug:
+        asyncio.create_task(asyncio_jitter_monitor(50)) 
 
     # 1) spawn threads
     asyncio.create_task(idle_task(5.0))
