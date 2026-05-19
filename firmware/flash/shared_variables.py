@@ -108,6 +108,7 @@ class SystemData:
         self.serial_task_timestamp = 0
         self.storage_task_timestamp = 0
         self.io_task_timestamp = 0
+        self.led_task_timestamp = 0
         self.button = 2
 
 

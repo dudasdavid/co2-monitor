@@ -19,6 +19,7 @@ from services.adc_task import adc_task
 from services.io_task import io_task
 from services.event_handler_task import event_handler_task
 from services.asyncio_jitter_monitor import asyncio_jitter_monitor
+from services.led_task import led_task
 
 from logger import Logger
 
@@ -83,6 +84,7 @@ async def main():
     asyncio.create_task(adc_task(0.5))
     asyncio.create_task(io_task(0.5))
     asyncio.create_task(event_handler_task())
+    asyncio.create_task(led_task(0.05))
 
     # 3) main loop can do supervision / LEDs / watchdog
     led = machine.Pin("LED", machine.Pin.OUT)
