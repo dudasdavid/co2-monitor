@@ -14,8 +14,8 @@ H_BLUE    = const(210)
 SAT_FULL  = const(100)
 
 RAINBOW_VALUE = const(20)
-STATIC_VALUE  = (20, 20, 20)
-STARTUP_VALUE = (30, 30, 100)
+STATIC_VALUE  = (200, 200, 200)
+STARTUP_VALUE = (300, 300, 1000)
 
 LUX_OFF = 1.0
 LUX_LOW = 5.0
@@ -49,10 +49,8 @@ def clamp(x, lo, hi):
         return hi
     return x
 
-def fill(np, rgb):
-    for i in range(len(np)):
-        np[i] = rgb
-    np.write()
+def fill(rgb):
+    var.system_data.feedback_led = rgb
 
 def smooth_breath(v):
     global v_breath_filt
@@ -106,6 +104,21 @@ def convert_hsv2rgb(h,s,v):
         r, g, b = v, p, q
 
     return (int(r * 4000), int(g * 4000), int(b * 4000))
+
+# ---- Screen state helpers ----------------
+def normal_screen_active(name):
+    return (
+        not var.selected_alt and
+        len(var.screen_names) > 0 and
+        var.screen_names[var.current_idx] == name
+    )
+
+def normal_screen_in(names):
+    return (
+        not var.selected_alt and
+        len(var.screen_names) > 0 and
+        var.screen_names[var.current_idx] in names
+    )
 
 # ---- Color decision helpers -------------
 def co2_hue(value):
@@ -177,16 +190,23 @@ async def led_task(period = 1.0):
     while True:
         #log.debug("Task is running")
 
-        if var.sensor_data.co2_scd41 is not None:
+        # Startup / welcome screen
+        if len(var.screen_names) == 0:
+            fill(STARTUP_VALUE)
+
+        # CO2 screens: breathing, color from CO2 level
+        elif normal_screen_in(["CO2", "CO2 Chart"]):
             h = co2_hue(var.sensor_data.co2_scd41)
             breath_idx = apply_breathing(h, breath_idx)
-            #phase = apply_rainbow(phase)
-            
+
+        # Sensors screen: breathing, color from worst sensor status
+        elif normal_screen_active("Sensors"):
+            h = co2_hue(var.sensor_data.co2_scd41)
+            breath_idx = apply_breathing(h, breath_idx)
+
+        # Default: rotating rainbow
         else:
-            # Off
-            rgb = convert_hsv2rgb(0, 0, 0)
-            log.debug(rgb)
-            var.system_data.feedback_led = rgb
+            phase = apply_rainbow(phase)
         
         var.system_data.led_task_timestamp = time.time()
         
