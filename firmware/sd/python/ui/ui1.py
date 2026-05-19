@@ -5,7 +5,7 @@ from ui import ui_generic as ui
 # ---- Global variables ----
 import shared_variables as var
 
-def create_sensor_table():
+def create_sensor_table(alt=False):
     scr = lv.obj()
 
     # This will be the scrollable area
@@ -179,12 +179,18 @@ def create_sensor_table():
     table.add_style(table.PART.CELL1, font_style)  # normal cells
     #table.add_style(table.PART.CELL2, font_style)  # header cells
 
-    # --- Add screen to screens ---
-    var.screens.append(scr)
-    var.screen_names.append("Sensors")
+    # --- Add screen to screens ---   
+    screen_name = "Sensors"
+    if not alt:
+        var.screens.append(scr)
+        var.screen_names.append(screen_name)
+    else:
+        var.screens_alt.append(scr)
+        var.screen_names_alt.append(screen_name)
+    
     return scr
 
-def create_system_table():
+def create_system_table(alt=False):
     scr = lv.obj()
     
     # This will be the scrollable area
@@ -402,11 +408,17 @@ def create_system_table():
     #table.add_style(table.PART.CELL2, font_style)  # header cells
 
     # --- Add screen to screens ---
-    var.screens.append(scr)
-    var.screen_names.append("System")
+    screen_name = "System"
+    if not alt:
+        var.screens.append(scr)
+        var.screen_names.append(screen_name)
+    else:
+        var.screens_alt.append(scr)
+        var.screen_names_alt.append(screen_name)
+    
     return scr
     
-def create_console_log():
+def create_console_log(alt=False):
     
     scr = lv.obj()
     
@@ -635,8 +647,14 @@ def create_console_log():
 
     btn1.add_style(lv.btn.PART.MAIN, style_checked)
 
-    # --- Add screen to screens ---
-    var.screens.append(scr)
-    var.screen_names.append("Log")
+    # --- Add screen to screens ---  
+    screen_name = "Log"
+    if not alt:
+        var.screens.append(scr)
+        var.screen_names.append(screen_name)
+    else:
+        var.screens_alt.append(scr)
+        var.screen_names_alt.append(screen_name)
+    
     return scr 
 

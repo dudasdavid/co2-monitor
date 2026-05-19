@@ -41,7 +41,7 @@ def calc_nice_axis(y_min, y_max_raw, steps, base=100, min_y_max=1100):
 
     return y_max
 
-def create_co2_chart():
+def create_co2_chart(alt=False):
     scr = lv.obj()
     
     chart = lv.chart(scr)
@@ -272,7 +272,13 @@ def create_co2_chart():
 
     chart.add_style(lv.chart.PART.SERIES, style_series)
     
-    # --- Add screen to screens ---
-    var.screens.append(scr)
-    var.screen_names.append("CO2 Chart")
+    # --- Add screen to screens --- 
+    screen_name = "CO2 Chart"
+    if not alt:
+        var.screens.append(scr)
+        var.screen_names.append(screen_name)
+    else:
+        var.screens_alt.append(scr)
+        var.screen_names_alt.append(screen_name)
+    
     return scr

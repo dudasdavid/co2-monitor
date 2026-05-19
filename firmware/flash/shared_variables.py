@@ -138,9 +138,15 @@ all_space = 0
 sensor_data = SensorData()
 system_data = SystemData()
 
+# screens are main screens, alt screens are a second page of screens
 screens = []
+screens_alt = []
 screen_names = []
+screen_names_alt = []
 current_idx = 0
+current_idx_alt = 0
+# flag to show if alternative or game screen is selected
+selected_alt = 0
 
 touch_start_x = 0
 touch_start_y = 0

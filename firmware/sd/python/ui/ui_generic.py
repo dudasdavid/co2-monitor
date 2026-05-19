@@ -22,23 +22,43 @@ def show_screen(idx):
     #global current_idx
     if not var.screens:
         return
-    var.current_idx = idx % len(var.screens)
-    lv.scr_load(var.screens[var.current_idx])
+
+    # If alt screens carousel is selected (settings screens)
+    if var.selected_alt == 1:
+        var.current_idx_alt = idx % len(var.screens_alt)
+        screen = var.screens_alt[var.current_idx_alt]
+        screen_name = var.screen_names_alt[var.current_idx_alt]
+    # Normal - usually sensor - screens carousel is selected
+    else:
+        var.current_idx = idx % len(var.screens)
+        screen = var.screens[var.current_idx]
+        screen_name = var.screen_names[var.current_idx]
+
+    lv.scr_load(screen)
     
     global screen_label
-    s = var.screen_names[var.current_idx]
-    #print("screen name:", s)
-    screen_label.set_text(s)
-
+    screen_label.set_text(screen_name)
 
 def next_screen():
     var.haptic_events.put_nowait(var.EVENT_FB_SWIPE_LEFT)
-    show_screen(var.current_idx + 1)
+    
+    if var.selected_alt == 1:
+        idx = var.current_idx_alt + 1
+    else:
+        idx = var.current_idx + 1
+    
+    show_screen(idx)
     
 def prev_screen():
     var.haptic_events.put_nowait(var.EVENT_FB_SWIPE_RIGHT)
-    show_screen(var.current_idx - 1)
     
+    if var.selected_alt == 1:
+        idx = var.current_idx_alt - 1
+    else:
+        idx = var.current_idx - 1
+    
+    show_screen(idx)
+
 def swipe_event_cb(obj, event):
     #global touch_start_x, touch_start_y
 
