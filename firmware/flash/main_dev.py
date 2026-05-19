@@ -75,7 +75,7 @@ async def main():
 
     # 1) Spawn threads
     asyncio.create_task(idle_task(5))        # Tune for ideal manual gc timing
-    asyncio.create_task(serial_task(1))      # Real cycle time is much slower due to many asyncio sleeps
+    asyncio.create_task(serial_task(0.2))    # Real cycle time is much slower due to many asyncio sleeps
     asyncio.create_task(i2c_task(0.1))       # Must be running fast due to LED driver, sensor readings are much slower
     asyncio.create_task(i2c_async_task())
     asyncio.create_task(backlight_task(0.1)) 
