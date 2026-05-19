@@ -91,8 +91,8 @@ async def main():
 
     # Create some demo screens
     ui2.create_co2_chart()
-    ui1.create_sensor_table()
-    ui1.create_system_table()
+    ui1.create_sensor_table(alt=True)
+    ui1.create_system_table(alt=True)
     #ui1.create_console_log()
     #ui2.create_screen(0x202040, "Screen 1")
     #ui2.create_screen(0x204020, "Screen 2")
