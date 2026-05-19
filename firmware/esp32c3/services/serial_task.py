@@ -30,6 +30,7 @@ async def serial_task(period = 1.0):
     def build_response(req: str) -> bytes:
         r = req.strip()  # strip whitespace + CR/LF
         
+        log.debug(f"----------------")
         log.debug(f"Received message: {r}")
 
         if not r:
@@ -57,6 +58,9 @@ async def serial_task(period = 1.0):
                     return b"AP requested\r\n"
                 else:
                     return b"AP disabled\r\n"
+
+        if r == "MQTT_STATUS?":
+            return "{}\r\n".format(var.mqqt_server_connection).encode()
 
         if r == "TIME?":
             if var.ntp_time_synchronized:
@@ -147,6 +151,10 @@ async def serial_task(period = 1.0):
 
             req = frame.decode("utf-8", "ignore")
             resp = build_response(req)
+            
+            log.debug(f"Response sent: {resp}")
+            log.debug(f"----------------")
+            
             if resp is not None:
                 uart.write(resp)
 
