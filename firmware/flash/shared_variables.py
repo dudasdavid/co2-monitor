@@ -73,6 +73,7 @@ class SystemData:
         self.time_rtc = "2025-11-20 20:00:10"
         self.status_wifi = "Not Connected"
         self.status_ap = "Not Connected"
+        self.status_mqtt = "Not Connected"
         self.status_sd = "Offline"
         self.total_space_flash = 690
         self.used_space_flash = 69

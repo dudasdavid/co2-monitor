@@ -79,9 +79,11 @@ async def serial_task(period = 1.0):
     #Run
     while True:
         
+        # Flush any stuck data in UART FIFO
         _ = uart6.read(uart6.any() or 0)  # dump whatever is there
         await asyncio.sleep(0.3)
         
+        # Read WiFi status
         uart6.write(b'WIFI_STATUS?\n')
         await asyncio.sleep(0.2)
         connection = uart6.readline()
@@ -94,6 +96,7 @@ async def serial_task(period = 1.0):
             
         await asyncio.sleep(0.3)
         
+        # Read AP status
         uart6.write(b'AP_STATUS?\n')
         await asyncio.sleep(0.2)
         connection = uart6.readline()
@@ -106,6 +109,20 @@ async def serial_task(period = 1.0):
             
         await asyncio.sleep(0.3)
         
+        # Read MQTT status
+        uart6.write(b'MQTT_STATUS?\n')
+        await asyncio.sleep(0.2)
+        connection = uart6.readline()
+        log.debug("MQTT_STATUS?", connection)
+        
+        if connection is not None:
+            var.system_data.status_ap = connection.strip()
+        else:
+            var.system_data.status_ap = "ESP32C3 is OFFLINE"
+            
+        await asyncio.sleep(0.3)
+        
+        # Read NTP time
         uart6.write(b'TIME?\n')
         await asyncio.sleep(0.2)
         ntp_time_str = uart6.readline()
@@ -115,6 +132,7 @@ async def serial_task(period = 1.0):
         
         await asyncio.sleep(0.3)
         
+        # Publish sensor data to network module
         uart6.write(b'TEMP:' + str(var.sensor_data.temp_aht21) + ',' + str(var.sensor_data.humidity_aht21) + '\n')
         #error = uart6.readline()
         #if error is not None:
@@ -139,11 +157,11 @@ async def serial_task(period = 1.0):
 
         await asyncio.sleep(0.2)
         
+        # Start AP if it's requested on UI
         if var.ap_request:
             uart6.write(b'AP_START\n')
             var.ap_request = False
             await asyncio.sleep(0.2)
-            
         
         var.system_data.serial_task_timestamp = time.time()
         
