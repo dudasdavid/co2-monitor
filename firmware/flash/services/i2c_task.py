@@ -204,15 +204,15 @@ async def i2c_task(period = 1.0):
     #log.info("[SPS30] Read data...")
     #log.info("[SPS30]", sps30.get_measurement())
     
-    i = 0
+    i = -1
     led_idx = 0
 
     #Run    
     while True:
         
         i+=1
-        # Only scan devices in every 50th loop which is 5s
-        if i % 50 == 0:
+        # Only scan devices in every 80th loop which is 8s
+        if i % 80 == 0:
             devices = i2c1.scan()
             var.system_data.i2c_devices = devices
             
@@ -290,8 +290,8 @@ async def i2c_task(period = 1.0):
                 
             var.system_data.i2c_status_unknown = devices
 
-        # Only read sensors in every 10th loop which is 1s
-        if i % 10 == 0:
+        # Only read sensors in every 30th loop which is 3s
+        if i % 30 == 0:
             
             ##############################################
             ########## VEML7700 light sensor #############

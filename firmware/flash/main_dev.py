@@ -73,15 +73,15 @@ async def main():
         asyncio.create_task(asyncio_jitter_monitor(50)) 
 
     # 1) Spawn threads
-    asyncio.create_task(idle_task(3))
-    asyncio.create_task(serial_task(1))
-    asyncio.create_task(i2c_task(0.1))
+    asyncio.create_task(idle_task(3))        # Tune for ideal manual gc timing
+    asyncio.create_task(serial_task(1))      # Real cycle time is much slower due to many asyncio sleeps
+    asyncio.create_task(i2c_task(0.1))       # Must be running fast due to LED driver, sensor readings are much slower
     asyncio.create_task(i2c_async_task())
-    asyncio.create_task(backlight_task(0.1))
-    asyncio.create_task(storage_task(3))
+    asyncio.create_task(backlight_task(0.1)) 
+    asyncio.create_task(storage_task(5))
     asyncio.create_task(history_task(2))
-    asyncio.create_task(adc_task(1))
-    asyncio.create_task(io_task(2))
+    asyncio.create_task(adc_task(0.5))
+    asyncio.create_task(io_task(0.5))
     asyncio.create_task(event_handler_task())
 
     # 3) main loop can do supervision / LEDs / watchdog
