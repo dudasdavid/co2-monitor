@@ -18,10 +18,17 @@ async def event_handler_task():
         if event_type == var.EVENT_BUTTON_PRESS:
             log.debug("SHORT press detected")
             ui_generic.next_screen()
+            
             #await var.audio_events.put(var.EVENT_AUDIO_SHORT)
 
         elif event_type == var.EVENT_BUTTON_LONG_PRESS:
             log.debug("LONG press detected")
+            if var.selected_alt == 0:
+                var.selected_alt = 1
+                ui_generic.show_screen(var.current_idx_alt)
+            elif var.selected_alt == 1:
+                var.selected_alt = 0
+                ui_generic.show_screen(var.current_idx)
             await var.haptic_events.put(var.EVENT_FB_LONG_PRESS)
 
         else:
