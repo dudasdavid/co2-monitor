@@ -283,7 +283,8 @@ async def i2c_task(period = 1.0):
 
             # Add a small sleep that even driven task can take the bus
             await asyncio.sleep_ms(50)
-
+            
+        if i % 10 == 2:
             ##############################################
             ############ ENS160 TVOC sensor ##############
             ##############################################
@@ -353,6 +354,7 @@ async def i2c_task(period = 1.0):
             # Add a small sleep that even driven task can take the bus
             await asyncio.sleep_ms(50)
             
+        if i % 10 == 4:
             ##############################################
             ############# SCD41 CO2 sensor ###############
             ##############################################
@@ -397,6 +399,7 @@ async def i2c_task(period = 1.0):
             # Add a small sleep that even driven task can take the bus
             await asyncio.sleep_ms(50)
             
+        if i % 10 == 5:
             ##############################################
             ########## DS3231 real time clock ############
             ##############################################
@@ -411,6 +414,7 @@ async def i2c_task(period = 1.0):
             # Add a small sleep that even driven task can take the bus
             await asyncio.sleep_ms(50)
             
+        if i % 10 == 6:
             ##############################################
             ########## BMP280 pressure sensor ############
             ##############################################
@@ -430,6 +434,7 @@ async def i2c_task(period = 1.0):
             # Add a small sleep that even driven task can take the bus
             await asyncio.sleep_ms(50)
         
+        if i % 10 == 8:
             ##############################################
             ########## SPS30 particle sensor #############
             ##############################################
