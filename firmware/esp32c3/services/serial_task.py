@@ -24,6 +24,8 @@ async def serial_task(period = 1.0):
     
     request_timeout_ms = 3000
     max_buf_len = 100
+    
+    await asyncio.sleep(2)
 
     # ---- Simple request->response handler ----
     # You can replace this with your own protocol.

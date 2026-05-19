@@ -340,6 +340,11 @@ async def networking_task(period_on = 10.0, period_off = 50.0):
     
     ap.active(False)
     wlan.active(False)
+    
+    # Delay startup of WiFi
+    for remaining in range(20, 0, -1):
+        var.sleep_till_next_connection = remaining
+        await asyncio.sleep(1)
 
     #Run
     while True:
