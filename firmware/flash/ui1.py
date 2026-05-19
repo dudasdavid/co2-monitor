@@ -231,7 +231,7 @@ def create_system_table():
     table.set_cell_value(4, 0, "SD card status")
     table.set_cell_value(5, 0, "/flash storage")
     table.set_cell_value(6, 0, "/sd storage")
-    table.set_cell_value(7, 0, "LVGL heap")
+    table.set_cell_value(7, 0, "RAM")
     table.set_cell_value(8, 0, "Lux")
     table.set_cell_value(9, 0, "Backlight")
     table.set_cell_value(10, 0, "i2c SCD41")
@@ -277,7 +277,7 @@ def create_system_table():
         table.set_cell_value(4, 1, var.system_data.status_sd)
         table.set_cell_value(5, 1, "{}kB / {}kB".format(int(var.system_data.used_space_flash), int(var.system_data.total_space_flash)))
         table.set_cell_value(6, 1, "{}MB / {}MB".format(int(var.system_data.used_space_sd), int(var.system_data.total_space_sd)))
-        table.set_cell_value(7, 1, "{}kB / {}kB".format(int(var.system_data.used_heap), int(var.system_data.total_heap)))
+        table.set_cell_value(7, 1, "{:.1f}MB / {:.1f}MB".format(var.system_data.used_heap/1024.0, var.system_data.total_heap/1024.0))
         table.set_cell_value(8, 1, "{:.2f}".format(var.sensor_data.lux_veml7700)) # This comes from sensor data!
         table.set_cell_value(9, 1, "{} / 1000".format(int(var.system_data.bl_duty_percent)))
         table.set_cell_value(10, 1, "{}".format(var.system_data.i2c_status_scd41))
