@@ -1,4 +1,5 @@
 import uasyncio as asyncio
+import persistent_config
 
 debug = False
 
@@ -71,6 +72,7 @@ class SystemData:
     def __init__(self):
         self.time_ntp = "Not connected"
         self.time_rtc = "2025-11-20 20:00:10"
+        self.time_local = "NA"
         self.status_wifi = "Not Connected"
         self.status_ap = "Not Connected"
         self.status_mqtt = "Not Connected"
@@ -130,7 +132,11 @@ scd41_co2_max_history_samples = 60
 
 history_loaded = False
 
-time_offset_ntp = 1
+try:
+    TZ_OFFSET = persistent_config.TZ_OFFSET
+except:
+    print("TZ offset cannot be read from persistent_config.py!")
+    TZ_OFFSET = 0
 
 free_space = 0
 all_space = 0

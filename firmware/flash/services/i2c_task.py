@@ -21,6 +21,26 @@ log = Logger("i2c", debug_enabled=False)
 # Haptic driver instance is shared between synchronous (init is there) and async (based on swipe events) tasks
 drv2605 = None
 
+def apply_utc_offset(ntp_time):
+    
+    try:
+        y, mo, d, wday, h, min, s, sub = ntp_time
+
+        # Convert to epoch
+        ts = time.mktime((y, mo, d, h, min, s, 0, 0))
+
+        # Apply offset in seconds
+        ts += var.TZ_OFFSET
+
+        # Convert back
+        y, mo, d, h, mi, s, wday, yday = time.localtime(ts)
+
+        # Return in original format
+        return (y, mo, d, wday, h, mi, s, sub)
+    except Exception as e:
+        log.warning("Failed to unpack NTP time:", ntp_time, "| Error:", e)
+        return None
+
 def is_time_diff_over_threshold(ntp_time, rtc_time, threshold_seconds=60):
     """
     ntp_time and rtc_time are tuples like:
@@ -103,7 +123,9 @@ async def i2c_task(period = 1.0):
     
     # Initialize MCU's RTC HW
     rtc_mcu = RTC()
-    rtc_mcu.datetime(rtc_datetime)
+    local_time = apply_utc_offset(rtc_datetime)
+    rtc_mcu.datetime(local_time)
+    var.system_data.time_local = local_time
     log.info("MCU RTC was initialized to:", time.localtime())
 
     # Initialize the BMP280 Pressure sensor
@@ -408,8 +430,11 @@ async def i2c_task(period = 1.0):
             #log.debug("[DS3231] RTC datetime:", var.system_data.time_rtc)
             
             if is_time_diff_over_threshold(var.system_data.time_ntp, var.system_data.time_rtc, 60):
-                log.warning("[DS3231] RTC time needs to be updated from NTP time!", var.system_data.time_ntp)
+                log.warning("[DS3231] RTC time needs to be updated to NTP time!", var.system_data.time_ntp)
                 ds3231.datetime(var.system_data.time_ntp)
+
+            local_time = apply_utc_offset(var.system_data.time_rtc)
+            var.system_data.time_local = local_time
             
             # Add a small sleep that even driven task can take the bus
             await asyncio.sleep_ms(50)
