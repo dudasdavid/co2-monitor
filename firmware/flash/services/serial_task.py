@@ -24,7 +24,11 @@ def parse_time_string(s: bytes, hours_offset=0):
 
         # must start with TIME:
         if not text.startswith("TIME:"):
-            raise ValueError("Missing TIME prefix")
+            if text == "NTP was not synchronized":
+                log.debug("NTP was not synchronized")
+                return None
+            else:
+                raise ValueError("Missing TIME prefix")
 
         # remove prefix
         text = text[5:]

@@ -50,7 +50,11 @@ def is_time_diff_over_threshold(ntp_time, rtc_time, threshold_seconds=60):
     otherwise False. If either is None or invalid, logs a warning and returns False.
     """
     if ntp_time is None or rtc_time is None:
-        log.warning("NTP or RTC time is None, cannot compare.")
+        if ntp_time is None:
+            # None is normal before ESP32C3 can connect to the internet
+            log.debug("NTP time was None")
+        else:
+            log.warning("NTP or RTC time is None, cannot compare. NTP:", ntp_time, ", RTC:", rtc_time)
         return False
 
     try:
@@ -71,7 +75,11 @@ def is_time_diff_over_threshold(ntp_time, rtc_time, threshold_seconds=60):
         return diff > threshold_seconds
 
     except Exception as e:
-        log.warning("Failed to compare times:", ntp_time, rtc_time, "| Error:", e)
+        # It's normal before ESP32C3 boots
+        if ntp_time == "ESP32C3 is OFFLINE":
+            log.debug("ESP32C3 was offline during timestamp compare. | Error:", e)
+        else:
+            log.error("Failed to compare times:", ntp_time, "|", rtc_time, "| Error:", e)
         return False
 
 def compensate_humidity(rh_raw: float, t_raw: float, t_cal: float) -> float:
