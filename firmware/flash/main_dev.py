@@ -24,9 +24,10 @@ from services.led_task import led_task
 from logger import Logger
 
 # UI will be loaded from SD card
-from ui import ui1
-from ui import ui2
+from ui import ui_tables
+from ui import ui_chart
 from ui import ui_generic
+from ui import ui_logger
 
 # ---- Global variables ----
 import shared_variables as var
@@ -90,12 +91,12 @@ async def main():
     led = machine.Pin("LED", machine.Pin.OUT)
 
     # Create some demo screens
-    ui2.create_co2_chart()
-    ui1.create_sensor_table(alt=True)
-    ui1.create_system_table(alt=True)
-    #ui1.create_console_log()
-    #ui2.create_screen(0x202040, "Screen 1")
-    #ui2.create_screen(0x204020, "Screen 2")
+    ui_chart.create_co2_chart()
+    ui_tables.create_sensor_table(alt=True)
+    ui_tables.create_system_table(alt=True)
+    ui_logger.create_console_log(alt=True)
+    #ui_generic.create_screen(0x202040, "Screen 1")
+    #ui_generic.create_screen(0x204020, "Screen 2")
 
     ui_generic.create_status_bar(top_layer)
 
