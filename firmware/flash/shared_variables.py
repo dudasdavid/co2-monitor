@@ -166,6 +166,7 @@ logger_error = []
 logger_label_prev = ""
 
 ap_request = False
+wifi_connected = False
 
 EVENT_FB_SWIPE_LEFT = 1
 EVENT_FB_SWIPE_RIGHT = 2

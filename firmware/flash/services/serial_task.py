@@ -78,7 +78,7 @@ async def serial_task(period = 1.0):
     reset_request = pyb.Pin('D12', pyb.Pin.OUT)
     reset_request.value(0) # Reset
 
-    for remaining in range(30, 0, -1):
+    for remaining in range(10, 0, -1):
         var.system_data.status_wifi = "ESP32C3 will boot in {}s".format(remaining)
         await asyncio.sleep(1)
 
@@ -103,8 +103,13 @@ async def serial_task(period = 1.0):
             
             if connection is not None:
                 var.system_data.status_wifi = connection.strip()
+                if "WiFi connected" in connection.strip():
+                    var.wifi_connected = True
+                else:
+                    var.wifi_connected = False
             else:
                 var.system_data.status_wifi = "ESP32C3 is OFFLINE"
+                var.wifi_connected = False
                 
             await asyncio.sleep(0.1)
         
