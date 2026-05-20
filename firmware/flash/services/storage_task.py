@@ -14,6 +14,16 @@ CSV_HEADER = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lu
 
 # ---- Helpers ----
 
+def localtime_with_offset(offset_sec=var.TZ_OFFSET):
+    # get current UTC epoch
+    utc_epoch = time.time()
+    
+    # apply offset
+    local_epoch = utc_epoch + offset_sec
+    
+    # convert back to tuple
+    return time.localtime(local_epoch)
+
 def _format_timestamp(t):
     """
     t: (year, month, day, weekday, hour, minute, second, subsecond)
@@ -143,24 +153,22 @@ def sd_card_recovery():
     except Exception as e:
         log.error("SD card recovery failed!", e)
         var.system_data.status_sd = "Offline"
-        
 
-
-def _append_sensor_row(path, limit_rows, log):
+async def _append_sensor_row(path, limit_rows, yield_every=20):
     """
     Append one sensor row and trim to last `limit_rows` data lines.
     """
     # Build CSV line
-    ts_tuple = var.system_data.time_rtc
-    ts_str = _format_timestamp(ts_tuple)
+    timestamp = localtime_with_offset()
+    ts_str = _format_timestamp(timestamp)
 
     temp = _safe(var.sensor_data.temp_aht21)
     hum = _safe(var.sensor_data.humidity_aht21)
     co2 = int(_safe(var.sensor_data.co2_scd41))
     tvoc = int(_safe(var.sensor_data.tvoc_ens160))
     aqi = int(_safe(var.sensor_data.aqi_ens160))
-    pm10 = _safe(var.sensor_data.pm10_sps30)
-    pm2_5 = _safe(var.sensor_data.pm2_5_sps30)
+    pm10 = _safe(var.sensor_data.pm10_filtered_sps30)
+    pm2_5 = _safe(var.sensor_data.pm2_5_filtered_sps30)
     pressure = _safe(var.sensor_data.pressure_bmp280)
     lux = _safe(var.sensor_data.lux_veml7700)
 
@@ -208,10 +216,16 @@ def _append_sensor_row(path, limit_rows, log):
             log.warning("Log length is longer than", limit_rows, ", log size was decreased to", len(data_lines))
 
         # Write everything back
+        line_counter = 0
         f = open(path + ".tmp", "w")
         f.write(header)
         for l in data_lines:
             f.write(l)
+            
+            line_counter += 1
+            if line_counter % yield_every == 0:
+                await asyncio.sleep_ms(10)
+
         f.close()
 
         log.debug("Log row created, total rows:", len(data_lines))
@@ -233,7 +247,7 @@ def _append_sensor_row(path, limit_rows, log):
         
         sd_card_recovery()
 
-def _load_co2_history_from_log(path, log):
+async def _load_co2_history_from_log(path, yield_every=10):
     """
     Read /sd/sensor_logs.csv and rebuild var.scd41_co2_history
     from all entries in the last 24 hours.
@@ -242,82 +256,94 @@ def _load_co2_history_from_log(path, log):
     """
     try:
         f = open(path + ".csv", "r")
-        lines = f.readlines()
-        f.close()
     except OSError:
         log.warning("No log file found to restore CO2 history from:", path + ".csv")
         return
 
-    if len(lines) <= 1:
-        log.info("Log file has no data rows, history not restored")
-        return
-
-    now_tuple = var.system_data.time_rtc
-    # Now tuple is in the format of RTC: (2025, 11, 25, 2, 20, 12, 40, 0) where the 4th item is the weekday
-    # We need to convert it to this format: (2025, 11, 25, 20, 12, 40, 0, 0)
-    now_tuple = (now_tuple[0], now_tuple[1], now_tuple[2], now_tuple[4], now_tuple[5], now_tuple[6], 0, 0)
-    log.debug("RTC timestamp:", now_tuple)
     try:
-        now_ts = time.mktime(now_tuple)
-    except Exception as e:
-        log.error("mktime not available / failed, cannot restore history:", e)
-        return
+        # Skip header
+        header = f.readline()
+        if not header:
+            log.warning("Log file empty, history not restored")
+            return
 
-    one_day = 24 * 60 * 60
-    min_ts = now_ts - one_day
-
-    entries = []  # list of (ts_seconds, co2_int)
-
-    for line in lines[1:]:
-        line = line.strip()
-        if not line:
-            continue
-
-        parts = line.split(",")
-        if len(parts) < 4:
-            continue
-
-        ts_str = parts[0]      # 'YYYY-MM-DD HH:MM:SS'
-        co2_str = parts[3]     # co2 column
-
-        ts_tuple = _parse_timestamp(ts_str)
-        log.debug("Log timestamp:", ts_tuple)
-        if ts_tuple is None:
-            continue
-
+        now_tuple = localtime_with_offset()
+        log.debug("RTC timestamp:", now_tuple)
+        
         try:
-            ts = time.mktime(ts_tuple)
-        except:
-            continue
+            now_ts = time.mktime(now_tuple)
+        except Exception as e:
+            log.error("mktime not available / failed, cannot restore history:", e)
+            return
 
-        # Only keep last 24h
-        if ts < min_ts or ts > now_ts:
-            continue
+        one_day = 24 * 60 * 60
+        min_ts = now_ts - one_day
 
-        try:
-            co2 = int(float(co2_str))
-        except:
-            continue
+        entries = []  # list of (ts_seconds, co2_int)
+        line_counter = 0
 
-        entries.append((ts, co2))
+        while True:
+            line = f.readline()
+            if not line:
+                break
 
-    if not entries:
-        log.info("No recent entries (last 24h) for CO2 history")
-        return
+            line = line.strip()
+            if not line:
+                continue
 
-    # Ensure chronological order
-    entries.sort(key=lambda x: x[0])
+            parts = line.split(",")
+            if len(parts) < 5:
+                continue
 
-    # Build simple list of co2 values
-    history = [co2 for _, co2 in entries]
+            # Yield here during file reading to make sure other asyncio tasks can run
+            line_counter += 1
+            if line_counter % yield_every == 0:
+                await asyncio.sleep_ms(50)
 
-    # Respect max history length if defined
-    max_len = getattr(var, "CO2_HISTORY_MAX", None)
-    if max_len is not None and len(history) > max_len:
-        history = history[-max_len:]
+            ts_str = parts[0]      # 'YYYY-MM-DD HH:MM:SS'
+            co2_str = parts[3]     # co2 column
 
-    var.scd41_co2_history = history
-    log.info("Restored CO2 history from log, length:", len(history))
+            ts_tuple = _parse_timestamp(ts_str)
+            #log.debug("Log timestamp:", ts_tuple)
+            if ts_tuple is None:
+                continue
+
+            try:
+                ts = time.mktime(ts_tuple)
+            except:
+                continue
+
+            # Only keep last 24h
+            if ts < min_ts or ts > now_ts:
+                continue
+
+            try:
+                co2 = int(float(co2_str))
+            except Exception:
+                continue
+
+            entries.append((ts, co2))
+
+        if not entries:
+            log.warning("No recent entries (last 24h) for CO2 history")
+            return
+
+        # Ensure chronological order
+        entries.sort(key=lambda x: x[0])
+
+        # Build simple list of co2 values
+        history = [co2 for _, co2 in entries]
+
+        # Respect max history length if defined
+        max_len = getattr(var, "CO2_HISTORY_MAX", None)
+        if max_len is not None and len(history) > max_len:
+            history = history[-max_len:]
+
+        var.scd41_co2_history = history
+        log.info("Restored CO2 history from log, length:", len(history))
+        
+    finally:
+        f.close()
 
 async def storage_task(period = 1.0):
     #Init
@@ -395,7 +421,7 @@ async def storage_task(period = 1.0):
     log_file_path = "/sd/sensor_logs"
     if sd_mounted:
         _ensure_log_file(log_file_path, log)
-        _load_co2_history_from_log(log_file_path, log)
+        await _load_co2_history_from_log(log_file_path)
     else:
         log.error("SD card is not mounted by storage task:", e)
 
@@ -415,7 +441,7 @@ async def storage_task(period = 1.0):
         elapsed += period
         if elapsed >= save_interval_s:
             elapsed = 0.0
-            _append_sensor_row(log_file_path, MAX_ROWS, log)
+            await _append_sensor_row(log_file_path, MAX_ROWS)
 
         var.system_data.storage_task_timestamp = time.time()
 
