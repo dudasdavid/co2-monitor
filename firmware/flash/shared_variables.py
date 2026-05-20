@@ -162,13 +162,8 @@ btn_left = None
 btn_right = None
 
 logger_paused = False
-logger_debug = []
-logger_info = []
 logger_error = []
-logger_warning = []
-
 logger_label_prev = ""
-logger_current_view = logger_debug
 
 ap_request = False
 

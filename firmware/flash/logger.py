@@ -19,42 +19,20 @@ class Logger:
         prefix = "[{}][{}][{}]".format(self._timestamp(), self.name, level)
         if args:
             print(prefix, *args)
-            '''
-            prefix = prefix.replace("INFO", "#00ff00 INFO#")
-            prefix = prefix.replace("ERROR", "#ff0000 ERROR#")
-            prefix = prefix.replace("WARN", "#ffff00 WARN#")
-            prefix = prefix.replace("DEBUG", "#00ffff DEBUG#")
             
-            msg = " ".join(str(x) for x in (prefix,) + args)
+            if level == "WARN" or level == "ERROR": # or level == "INFO":
+                prefix = prefix.replace("WARN", "#ffff00 WARN#")
+                prefix = prefix.replace("INFO", "#00ff00 INFO#")
+                prefix = prefix.replace("ERROR", "#ff0000 ERROR#")
+                prefix = prefix.replace("DEBUG", "#00ffff DEBUG#")
             
-            if level == "DEBUG":
-                var.logger_debug.append(msg)
-            elif level == "INFO":
-                var.logger_debug.append(msg)
-                var.logger_info.append(msg)
-            elif level == "WARN":
-                var.logger_debug.append(msg)
-                var.logger_info.append(msg)
-                var.logger_warning.append(msg)
-            else:
-                var.logger_debug.append(msg)
-                var.logger_info.append(msg)
-                var.logger_warning.append(msg)
+                msg = " ".join(str(x) for x in (prefix,) + args)
+            
                 var.logger_error.append(msg)
-            
-            # Drop old lines if log lists are longer than MAX_LINES
-            if len(var.logger_debug) > self.MAX_LINES:
-                del var.logger_debug[0:len(var.logger_debug) - self.MAX_LINES]
                 
-            if len(var.logger_info) > self.MAX_LINES:
-                del var.logger_info[0:len(var.logger_info) - self.MAX_LINES]
-                
-            if len(var.logger_warning) > self.MAX_LINES:
-                del var.logger_warning[0:len(var.logger_warning) - self.MAX_LINES]
-                
-            if len(var.logger_error) > self.MAX_LINES:
-                del var.logger_error[0:len(var.logger_error) - self.MAX_LINES]
-            '''
+                if len(var.logger_error) > self.MAX_LINES:
+                    del var.logger_error[0:len(var.logger_error) - self.MAX_LINES]
+
         else:
             print(prefix)
 
