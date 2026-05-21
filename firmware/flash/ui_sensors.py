@@ -26,7 +26,7 @@ def create_sensor_cards_screen(alt=False):
 
     CARD_W = ui.SCREEN_W // 3          # 160
     CARD_H = (ui.SCREEN_H - ui.STATUS_BAR_H) // 2   # 124
-    ARC_SIZE = 108
+    ARC_SIZE = 110
 
     GREEN = lv.color_hex(0x00ff66)
     YELLOW = lv.color_hex(0xffcc00)
@@ -80,35 +80,77 @@ def create_sensor_cards_screen(alt=False):
         cont.set_style_local_border_color(lv.cont.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(0x203020))
         cont.set_style_local_pad_all(lv.cont.PART.MAIN, lv.STATE.DEFAULT, 0)
 
+        # Disable focus/click highlight
+        cont.set_click(False)
+
+        cont.set_style_local_outline_width(
+            lv.cont.PART.MAIN,
+            lv.STATE.FOCUSED,
+            0
+        )
+
+        cont.set_style_local_outline_width(
+            lv.cont.PART.MAIN,
+            lv.STATE.DEFAULT,
+            0
+        )
+
+        cont.set_style_local_border_width(
+            lv.cont.PART.MAIN,
+            lv.STATE.FOCUSED,
+            1
+        )
+
+        # Create arcs for measurements
         arc = lv.arc(cont)
         arc.set_size(ARC_SIZE, ARC_SIZE)
         arc.align(cont, lv.ALIGN.CENTER, 0, 0)
+
         arc.set_range(0, 100)
         arc.set_value(0)
-        arc.set_bg_angles(0, 360)
 
-        arc.set_style_local_line_width(lv.arc.PART.BG, lv.STATE.DEFAULT, 8)
+        # Start from 12 o'clock instead of 3 o'clock
+        arc.set_bg_angles(270, 269)
+        arc.set_angles(270, 270)
+
+        # Remove white/default background square
+        arc.set_style_local_bg_opa(lv.arc.PART.BG, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+        arc.set_style_local_border_width(lv.arc.PART.BG, lv.STATE.DEFAULT, 0)
+        arc.set_style_local_pad_all(lv.arc.PART.BG, lv.STATE.DEFAULT, 0)
+
+        # Arc background circle
+        arc.set_style_local_line_width(lv.arc.PART.BG, lv.STATE.DEFAULT, 9)
         arc.set_style_local_line_color(lv.arc.PART.BG, lv.STATE.DEFAULT, DARK_ARC)
         arc.set_style_local_line_opa(lv.arc.PART.BG, lv.STATE.DEFAULT, lv.OPA.COVER)
 
-        arc.set_style_local_line_width(lv.arc.PART.INDIC, lv.STATE.DEFAULT, 8)
+        # Arc filled indicator
+        arc.set_style_local_line_width(lv.arc.PART.INDIC, lv.STATE.DEFAULT, 9)
         arc.set_style_local_line_color(lv.arc.PART.INDIC, lv.STATE.DEFAULT, GREEN)
         arc.set_style_local_line_opa(lv.arc.PART.INDIC, lv.STATE.DEFAULT, lv.OPA.COVER)
+
+        # Hide knob if your LVGL build has it
+        try:
+            arc.set_style_local_bg_opa(lv.arc.PART.KNOB, lv.STATE.DEFAULT, lv.OPA.TRANSP)
+            arc.set_style_local_border_width(lv.arc.PART.KNOB, lv.STATE.DEFAULT, 0)
+        except:
+            pass
 
         title = lv.label(cont)
         title.set_text(name)
         title.set_style_local_text_color(lv.label.PART.MAIN, lv.STATE.DEFAULT, MUTED)
+        title.set_style_local_text_font(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_10)
         title.align(cont, lv.ALIGN.CENTER, 0, -30)
 
         value_label = lv.label(cont)
         value_label.set_text("--")
         value_label.set_style_local_text_color(lv.label.PART.MAIN, lv.STATE.DEFAULT, WHITE)
-        value_label.set_style_local_text_font(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_14) # This should be bigger later
+        value_label.set_style_local_text_font(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_16) # This should be bigger later
         value_label.align(cont, lv.ALIGN.CENTER, 0, 0)
 
         unit_label = lv.label(cont)
         unit_label.set_text(unit)
         unit_label.set_style_local_text_color(lv.label.PART.MAIN, lv.STATE.DEFAULT, MUTED)
+        unit_label.set_style_local_text_font(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_10)
         unit_label.align(cont, lv.ALIGN.CENTER, 0, 32)
 
         card = {
@@ -159,7 +201,7 @@ def create_sensor_cards_screen(alt=False):
                 c["last_txt"] = txt
 
             if pct != c["last_pct"]:
-                c["arc"].set_value(pct)
+                c["arc"].set_angles(270, 270 + int(pct * 360 / 100))
                 c["last_pct"] = pct
 
             if color != c["last_color"]:
