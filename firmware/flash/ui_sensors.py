@@ -164,7 +164,7 @@ def create_sensor_cards_screen(alt=False):
         value_label = lv.label(cont)
         value_label.set_text("--")
         value_label.set_style_local_text_color(lv.label.PART.MAIN, lv.STATE.DEFAULT, WHITE)
-        value_label.set_style_local_text_font(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_16) # This should be bigger later
+        value_label.set_style_local_text_font(lv.label.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_32)
         value_label.align(cont, lv.ALIGN.CENTER, 0, 0)
 
         unit_label = lv.label(cont)
