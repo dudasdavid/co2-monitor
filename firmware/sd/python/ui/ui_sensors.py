@@ -213,7 +213,7 @@ def create_sensor_cards_screen(alt=False):
     create_card(
         2, "CO2", "ppm",
         lambda: var.sensor_data.co2_scd41,
-        400, 2500,
+        390, 2500,
         lambda v: color_low_is_good(v, 1000, 1500),
         0
     )
@@ -221,8 +221,8 @@ def create_sensor_cards_screen(alt=False):
     create_card(
         3, "TVOC", "ppb",
         lambda: var.sensor_data.tvoc_ens160,
-        0, 1000,
-        lambda v: color_low_is_good(v, 250, 500),
+        0, 3000,
+        lambda v: color_low_is_good(v, 500, 1000),
         0
     )
 
@@ -238,7 +238,7 @@ def create_sensor_cards_screen(alt=False):
         5, "PM10", "ug/m3",
         lambda: var.sensor_data.pm10_sps30,
         0, 150,
-        lambda v: color_low_is_good(v, 45, 100),
+        lambda v: color_low_is_good(v, 50, 100),
         0
     )
 
