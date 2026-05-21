@@ -24,6 +24,12 @@ def create_sensor_cards_screen(alt=False):
     page.set_style_local_border_width(lv.cont.PART.MAIN, lv.STATE.DEFAULT, 0)
     page.set_style_local_pad_all(lv.cont.PART.MAIN, lv.STATE.DEFAULT, 0)
 
+    def make_non_interactive(obj):
+        obj.set_click(False)
+        obj.set_drag(False)
+        
+    make_non_interactive(page)
+
     CARD_W = ui.SCREEN_W // 3          # 160
     CARD_H = (ui.SCREEN_H - ui.STATUS_BAR_H) // 2   # 124
     ARC_SIZE = 110
@@ -180,6 +186,12 @@ def create_sensor_cards_screen(alt=False):
             "last_color": None,
         }
 
+        make_non_interactive(cont)
+        make_non_interactive(arc)
+        make_non_interactive(title)
+        make_non_interactive(value_label)
+        make_non_interactive(unit_label)
+
         cards.append(card)
 
     create_card(
@@ -266,6 +278,7 @@ def create_sensor_cards_screen(alt=False):
     update_cards_cb(None)
 
     scr.set_event_cb(ui.swipe_event_cb)
+    page.set_event_cb(ui.swipe_event_cb)
 
     screen_name = "Sensors"
     if not alt:
