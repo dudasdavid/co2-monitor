@@ -28,6 +28,7 @@ from ui import ui_tables
 from ui import ui_chart
 from ui import ui_generic
 from ui import ui_logger
+from ui import ui_sensors
 
 # ---- Global variables ----
 import shared_variables as var
@@ -92,11 +93,11 @@ async def main():
 
     # Create some demo screens
     ui_chart.create_co2_chart()
+    ui_sensors.create_sensor_cards_screen()
     ui_tables.create_sensor_table(alt=True)
     ui_tables.create_system_table(alt=True)
     ui_logger.create_console_log(alt=True)
-    #ui_generic.create_screen(0x202040, "Screen 1")
-    #ui_generic.create_screen(0x204020, "Screen 2")
+    #ui_generic.create_screen()
 
     ui_generic.create_status_bar(top_layer)
 
