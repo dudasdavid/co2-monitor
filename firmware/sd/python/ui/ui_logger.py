@@ -193,14 +193,7 @@ def create_console_log(alt=False):
 
     btn1 = make_btn("Pause", pause_button_cb)
     btn2 = make_btn("Clear", clear_button_cb)
-        
-    def page_scroll_to_bottom(page):
-        scrl = page.get_child(None)  # scrollable container
-        y = page.get_height_fit() - scrl.get_height()
-        if y > 0: 
-            y = 0
-        scrl.set_y(y)
-        
+               
     def update_log_cb(timer):
         nonlocal log_label
 
