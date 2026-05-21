@@ -136,26 +136,33 @@ def swipe_event_table_on_page_cb(page):
             
     return swipe_event_table_cb
 
-def create_screen(bg_color, text):
+def create_screen(alt=False):
     scr = lv.obj()
 
     # Background color
     scr.set_style_local_bg_color(
         scr.PART.MAIN,
         lv.STATE.DEFAULT,
-        lv.color_hex(bg_color)
+        lv.color_hex(0x204020)
     )
 
     # Simple label in the middle
     label = lv.label(scr)
-    label.set_text(text)
+    label.set_text("Test screen")
     label.align(None, lv.ALIGN.CENTER, 0, 0)
 
     # Enable swipe on the full screen
     scr.set_event_cb(swipe_event_cb)
 
-    var.screens.append(scr)
-    var.screen_names.append(text)
+    # --- Add screen to screens ---   
+    screen_name = "Sensors"
+    if not alt:
+        var.screens.append(scr)
+        var.screen_names.append(screen_name)
+    else:
+        var.screens_alt.append(scr)
+        var.screen_names_alt.append(screen_name)
+    
     return scr
 
 def _battery_symbol_from_pct(pct):
