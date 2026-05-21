@@ -53,7 +53,7 @@ def create_sensor_cards_screen(alt=False):
         except:
             return None
 
-    def color_for_value(v, green_until, yellow_until):
+    def color_low_is_good(v, green_until, yellow_until):
         if v is None:
             return MUTED
         if v <= green_until:
@@ -63,7 +63,21 @@ def create_sensor_cards_screen(alt=False):
         else:
             return RED
 
-    def create_card(idx, name, unit, getter, vmin, vmax, green_until, yellow_until, decimals=0):
+    def color_comfort_zone(v, low_red, low_yellow, high_yellow, high_red):
+        if v is None:
+            return MUTED
+        if v < low_red:
+            return RED
+        elif v < low_yellow:
+            return YELLOW
+        elif v <= high_yellow:
+            return GREEN
+        elif v <= high_red:
+            return YELLOW
+        else:
+            return RED
+
+    def create_card(idx, name, unit, getter, vmin, vmax, color_func, decimals=0):
         row = idx // 3
         col = idx % 3
 
@@ -159,8 +173,7 @@ def create_sensor_cards_screen(alt=False):
             "getter": getter,
             "vmin": vmin,
             "vmax": vmax,
-            "green_until": green_until,
-            "yellow_until": yellow_until,
+            "color_func": color_func,
             "decimals": decimals,
             "last_txt": None,
             "last_pct": None,
@@ -169,13 +182,53 @@ def create_sensor_cards_screen(alt=False):
 
         cards.append(card)
 
-    create_card(0, "TEMP", "°C", lambda: var.sensor_data.temp_aht21,      0, 50,   26,   32,   1)
-    create_card(1, "HUM",  "%",  lambda: var.sensor_data.humidity_aht21,  0, 100,  60,   75,   0)
-    create_card(2, "CO2",  "ppm",lambda: var.sensor_data.co2_scd41,       400, 2500, 1000, 1500, 0)
+    create_card(
+        0, "TEMP", "°C",
+        lambda: var.sensor_data.temp_aht21,
+        0, 50,
+        lambda v: color_comfort_zone(v, 16, 19, 26, 30),
+        1
+    )
 
-    create_card(3, "TVOC", "ppb",lambda: var.sensor_data.tvoc_ens160,     0, 1000, 250,  500,  0)
-    create_card(4, "PM2.5","ug/m3", lambda: var.sensor_data.pm2_5_sps30,  0, 100,  15,   35,   0)
-    create_card(5, "PM10", "ug/m3", lambda: var.sensor_data.pm10_sps30,   0, 150,  45,   100,  0)
+    create_card(
+        1, "HUM", "%",
+        lambda: var.sensor_data.humidity_aht21,
+        0, 100,
+        lambda v: color_comfort_zone(v, 25, 35, 60, 70),
+        0
+    )
+
+    create_card(
+        2, "CO2", "ppm",
+        lambda: var.sensor_data.co2_scd41,
+        400, 2500,
+        lambda v: color_low_is_good(v, 1000, 1500),
+        0
+    )
+
+    create_card(
+        3, "TVOC", "ppb",
+        lambda: var.sensor_data.tvoc_ens160,
+        0, 1000,
+        lambda v: color_low_is_good(v, 250, 500),
+        0
+    )
+
+    create_card(
+        4, "PM2.5", "ug/m3",
+        lambda: var.sensor_data.pm2_5_sps30,
+        0, 100,
+        lambda v: color_low_is_good(v, 15, 35),
+        0
+    )
+
+    create_card(
+        5, "PM10", "ug/m3",
+        lambda: var.sensor_data.pm10_sps30,
+        0, 150,
+        lambda v: color_low_is_good(v, 45, 100),
+        0
+    )
 
     def update_cards_cb(task):
         for c in cards:
@@ -193,7 +246,7 @@ def create_sensor_cards_screen(alt=False):
                 pct = int((v - c["vmin"]) * 100 / (c["vmax"] - c["vmin"]))
                 pct = clamp(pct, 0, 100)
 
-            color = color_for_value(v, c["green_until"], c["yellow_until"])
+            color = c["color_func"](v)
 
             if txt != c["last_txt"]:
                 c["value_label"].set_text(txt)
