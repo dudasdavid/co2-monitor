@@ -155,7 +155,7 @@ def create_screen(alt=False):
     scr.set_event_cb(swipe_event_cb)
 
     # --- Add screen to screens ---   
-    screen_name = "Sensors"
+    screen_name = "Test"
     if not alt:
         var.screens.append(scr)
         var.screen_names.append(screen_name)
