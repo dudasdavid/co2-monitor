@@ -242,6 +242,8 @@ async def wifi_connect(wlan, timeout_s = 30):
     
     # ---- CONNECT TO WIFI ----
     wlan.active(True)
+    # try to add a little wait to avoid BOD
+    await asyncio.sleep_ms(1000)
     # Set TX power in dBm
     wlan.config(txpower=8)   # example: lower power
     # wlan.config(txpower=20)  # example: near maximum
@@ -341,8 +343,9 @@ async def networking_task(period_on = 10.0, period_off = 50.0):
     ap.active(False)
     wlan.active(False)
     
-    # Delay startup of WiFi
-    for remaining in range(20, 0, -1):
+    # Delay startup of WiFi to avoid BOD
+    for remaining in range(2, 0, -1):
+        var.wifi_sleep = True
         var.sleep_till_next_connection = remaining
         await asyncio.sleep(1)
 
