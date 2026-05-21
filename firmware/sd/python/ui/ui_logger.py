@@ -52,7 +52,17 @@ def create_console_log(alt=False):
     # --- Apply fonts style ---
     font_style = lv.style_t()
     font_style.init()
+    
+    # Load font baked into firmware
     font_style.set_text_font(lv.STATE.DEFAULT, lv.font_consolas_12)
+    
+    # Loading external font crashes on my MCU at the moment only baking it into the firmware is the only way to make it work
+    #from drivers import fs_driver
+    #fs_drv = lv.fs_drv_t()
+    #fs_driver.fs_register(fs_drv, 'S')
+    #custom_font = lv.font_load("S:/font-PHT-en-20.bin")
+    #font_style.set_text_font(lv.STATE.DEFAULT, custom_font)
+    
     log_label.add_style(lv.label.PART.MAIN, font_style)
 
     # --- Apply indentation within the label ---
