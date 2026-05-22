@@ -9,6 +9,21 @@ import shared_variables as var
 
 log = Logger("uart", debug_enabled=True)
 
+def decode_uart_line(line):
+    if line is None:
+        return None
+
+    try:
+        return line.decode().strip()
+    except Exception:
+        return str(line).strip()
+
+def write_uart_line(uart, line):
+    uart.write((line + "\n").encode())
+
+def safe_float(value, default=0.0):
+    return value if value is not None else default
+
 def parse_time_string(s: bytes, hours_offset=0):
     """
     Parse a UART time string like:
@@ -101,9 +116,10 @@ async def serial_task(period = 1.0):
             connection = uart6.readline()
             log.debug("WIFI_STATUS?", connection)
             
-            if connection is not None:
-                var.system_data.status_wifi = connection.strip()
-                if "WiFi connected" in connection.strip():
+            status = decode_uart_line(connection)
+            if status is not None:
+                var.system_data.status_wifi = status
+                if "WiFi connected" in status:
                     var.wifi_connected = True
                 else:
                     var.wifi_connected = False
@@ -120,8 +136,9 @@ async def serial_task(period = 1.0):
             connection = uart6.readline()
             log.debug("AP_STATUS?", connection)
             
-            if connection is not None:
-                var.system_data.status_ap = connection.strip()
+            status = decode_uart_line(connection)
+            if status is not None:
+                var.system_data.status_ap = status
             else:
                 var.system_data.status_ap = "ESP32C3 is OFFLINE"
                 
@@ -134,8 +151,9 @@ async def serial_task(period = 1.0):
             connection = uart6.readline()
             log.debug("MQTT_STATUS?", connection)
             
-            if connection is not None:
-                var.system_data.status_mqtt = connection.strip()
+            status = decode_uart_line(connection)
+            if status is not None:
+                var.system_data.status_mqtt = status
             else:
                 var.system_data.status_mqtt = "ESP32C3 is OFFLINE"
                 
@@ -163,21 +181,28 @@ async def serial_task(period = 1.0):
         
         # Publish sensor data to network module
         if i % 7 == 0:
-            uart6.write(b'TEMP:' + str(var.sensor_data.temp_aht21) + ',' + str(var.sensor_data.humidity_aht21) + '\n')
+            write_uart_line(uart6, "TEMP:{},{}".format(var.sensor_data.temp_aht21, var.sensor_data.humidity_aht21))
         if i % 7 == 1:
-            uart6.write(b'AQI:' + str(var.sensor_data.aqi_ens160) + ',' + str(var.sensor_data.tvoc_ens160) + '\n')
+            write_uart_line(uart6, "AQI:{},{}".format(var.sensor_data.aqi_ens160, var.sensor_data.tvoc_ens160))
         if i % 7 == 2:
-            uart6.write(b'CO2:' + str(var.sensor_data.co2_scd41) + ',' + str(var.scd41_co2_peak_ppm) + ',' + str(var.scd41_co2_detected) + '\n')
+            write_uart_line(uart6, "CO2:{},{},{}".format(var.sensor_data.co2_scd41, var.scd41_co2_peak_ppm, var.scd41_co2_detected))
         if i % 7 == 3:
-            uart6.write(b'LUX:' + str(var.sensor_data.lux_veml7700) + '\n')
+            write_uart_line(uart6, "LUX:{}".format(var.sensor_data.lux_veml7700))
         if i % 7 == 4:
-            uart6.write(b'PRE:' + str(var.sensor_data.pressure_bmp280) + '\n')
+            write_uart_line(uart6, "PRE:{}".format(var.sensor_data.pressure_bmp280))
         if i % 7 == 5:
-            uart6.write(b'BAT:' + str(var.system_data.bat_percentage) + '\n')
+            write_uart_line(uart6, "BAT:{}".format(var.system_data.bat_percentage))
         if i % 7 == 6:
-            uart6.write(b'PM:' + "{:.2f}".format(var.sensor_data.pm10_filtered_sps30) + ',' + "{:.2f}".format(var.sensor_data.pm4_filtered_sps30) + ',' + "{:.2f}".format(var.sensor_data.pm2_5_filtered_sps30) + ',' + "{:.2f}".format(var.sensor_data.pm1_filtered_sps30) + '\n')
+            write_uart_line(
+                uart6,
+                "PM:{:.2f},{:.2f},{:.2f},{:.2f}".format(
+                    safe_float(var.sensor_data.pm10_filtered_sps30),
+                    safe_float(var.sensor_data.pm4_filtered_sps30),
+                    safe_float(var.sensor_data.pm2_5_filtered_sps30),
+                    safe_float(var.sensor_data.pm1_filtered_sps30),
+                )
+            )
 
         i += 1
         
         await asyncio.sleep(period)
-
