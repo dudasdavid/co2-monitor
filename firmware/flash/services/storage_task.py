@@ -84,6 +84,57 @@ def _safe_rename(src, dst):
     except OSError:
         return False
 
+def _build_sensor_row():
+    timestamp = localtime_with_offset()
+    ts_str = _format_timestamp(timestamp)
+
+    temp = _safe(var.sensor_data.temp_aht21)
+    hum = _safe(var.sensor_data.humidity_aht21)
+    co2 = int(_safe(var.sensor_data.co2_scd41))
+    tvoc = int(_safe(var.sensor_data.tvoc_ens160))
+    aqi = int(_safe(var.sensor_data.aqi_ens160))
+    pm10 = _safe(var.sensor_data.pm10_filtered_sps30)
+    pm2_5 = _safe(var.sensor_data.pm2_5_filtered_sps30)
+    pressure = _safe(var.sensor_data.pressure_bmp280)
+    lux = _safe(var.sensor_data.lux_veml7700)
+
+    return "{},{:.2f},{:.2f},{:d},{:d},{:d},{:.2f},{:.2f},{:.2f},{:.2f}\n".format(
+        ts_str,
+        temp,
+        hum,
+        co2,
+        tvoc,
+        aqi,
+        pm10,
+        pm2_5,
+        pressure,
+        lux,
+    )
+
+async def _count_csv_data_rows(path, yield_every=50):
+    try:
+        f = open(path + ".csv", "r")
+    except OSError:
+        return 0
+
+    try:
+        header = f.readline()
+        if header != CSV_HEADER:
+            return 0
+
+        count = 0
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            if line.strip():
+                count += 1
+                if count % yield_every == 0:
+                    await asyncio.sleep_ms(10)
+        return count
+    finally:
+        f.close()
+
 
 def _ensure_log_file(path, log):
     
@@ -154,98 +205,77 @@ def sd_card_recovery():
         log.error("SD card recovery failed!", e)
         var.system_data.status_sd = "Offline"
 
-async def _append_sensor_row(path, limit_rows, yield_every=20):
+async def _append_sensor_row(path):
     """
-    Append one sensor row and trim to last `limit_rows` data lines.
+    Append one sensor row. Log compaction is handled separately so normal writes
+    do not rewrite the whole CSV.
     """
-    # Build CSV line
-    timestamp = localtime_with_offset()
-    ts_str = _format_timestamp(timestamp)
+    try:
+        f = open(path + ".csv", "a")
+        f.write(_build_sensor_row())
+        f.close()
+        log.debug("Log row appended")
+        return True
+    except Exception as e:
+        log.error("Failed to append sensor row:", e)
+        sd_card_recovery()
+        return False
 
-    temp = _safe(var.sensor_data.temp_aht21)
-    hum = _safe(var.sensor_data.humidity_aht21)
-    co2 = int(_safe(var.sensor_data.co2_scd41))
-    tvoc = int(_safe(var.sensor_data.tvoc_ens160))
-    aqi = int(_safe(var.sensor_data.aqi_ens160))
-    pm10 = _safe(var.sensor_data.pm10_filtered_sps30)
-    pm2_5 = _safe(var.sensor_data.pm2_5_filtered_sps30)
-    pressure = _safe(var.sensor_data.pressure_bmp280)
-    lux = _safe(var.sensor_data.lux_veml7700)
-
-    # Format as strings (adjust precision as you like)
-    row = "{},{:.2f},{:.2f},{:d},{:d},{:d},{:.2f},{:.2f},{:.2f},{:.2f}\n".format(
-        ts_str,
-        temp,
-        hum,
-        co2,
-        tvoc,
-        aqi,
-        pm10,
-        pm2_5,
-        pressure,
-        lux,
-    )
+async def _compact_log_file(path, limit_rows, yield_every=20):
+    csv = path + ".csv"
+    tmp = path + ".tmp"
+    bak = path + ".bak"
 
     try:
-        # Read all lines
-        try:
-            f = open(path + ".csv", "r")
-            lines = f.readlines()
+        f = open(csv, "r")
+        header = f.readline()
+        if header != CSV_HEADER:
             f.close()
-        except OSError:
-            # If file doesn't exist for some reason, recreate with header
-            lines = []
-            header = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lux\n"
-            lines.append(header)
-            log.error("File doesn't exist or error during reading, recreate with default header!")
+            log.error("Cannot compact invalid CSV header:", csv)
+            return None
 
-        if not lines:
-            header = "timestamp,temperature,humidity,co2,tvoc,aqi,pm10,pm2_5,pressure,lux\n"
-            data_lines = []
-            log.error("File doesn't exist or empty, recreate with default header!")
-        else:
-            header = lines[0]
-            data_lines = lines[1:]
-
-        data_lines.append(row)
-
-        # Keep only newest `limit_rows` data lines
-        log.info("Log length:", len(data_lines))
-        if len(data_lines) > limit_rows:
-            data_lines = data_lines[-limit_rows:]
-            log.warning("Log length is longer than", limit_rows, ", log size was decreased to", len(data_lines))
-
-        # Write everything back
+        data_lines = []
         line_counter = 0
-        f = open(path + ".tmp", "w")
-        f.write(header)
-        for l in data_lines:
-            f.write(l)
-            
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            if line.strip():
+                data_lines.append(line)
+
             line_counter += 1
             if line_counter % yield_every == 0:
                 await asyncio.sleep_ms(10)
-
         f.close()
 
-        log.debug("Log row created, total rows:", len(data_lines))
-        
-        os.rename(path + ".csv", path + ".bak")
-        
-        log.debug("Log backup done")
-        
-        os.rename(path + ".tmp", path + ".csv")
-        
-        log.debug("New log saved")
-        
-        os.remove(path + ".bak")
-        
-        log.debug("Backup log deleted")
-        
+        if len(data_lines) <= limit_rows:
+            return len(data_lines)
+
+        data_lines = data_lines[-limit_rows:]
+
+        f = open(tmp, "w")
+        f.write(CSV_HEADER)
+        for i, line in enumerate(data_lines):
+            f.write(line)
+            if i % yield_every == 0:
+                await asyncio.sleep_ms(10)
+        f.close()
+
+        os.rename(csv, bak)
+        os.rename(tmp, csv)
+        os.remove(bak)
+
+        log.warning("Compacted log file to", len(data_lines), "rows")
+        return len(data_lines)
     except Exception as e:
-        log.error("Failed to append sensor row:", e)
-        
+        log.error("Failed to compact log file:", e)
+        _safe_remove(tmp)
+
+        if _file_exists(bak) and not _file_exists(csv):
+            _safe_rename(bak, csv)
+
         sd_card_recovery()
+        return None
 
 async def _load_co2_history_from_log(path, yield_every=10):
     """
@@ -419,16 +449,20 @@ async def storage_task(period = 1.0):
 
 
     log_file_path = "/sd/sensor_logs"
+    log_row_count = 0
     if sd_mounted:
         _ensure_log_file(log_file_path, log)
         await _load_co2_history_from_log(log_file_path)
+        log_row_count = await _count_csv_data_rows(log_file_path)
+        log.info("Log row count:", log_row_count)
     else:
-        log.error("SD card is not mounted by storage task:", e)
+        log.error("SD card is not mounted by storage task")
 
     var.history_loaded = True
 
     # We want 7 days * 24h * 12 samples/h (5 min) = 2016 rows
     MAX_ROWS = 7 * 24 * 12   # data rows (excluding header)
+    COMPACT_OVERFLOW_ROWS = 24 * 12
 
     # Accumulator for 5-minute interval
     save_interval_s = 5 * 60  # 300 seconds
@@ -441,7 +475,13 @@ async def storage_task(period = 1.0):
         elapsed += period
         if elapsed >= save_interval_s:
             elapsed = 0.0
-            await _append_sensor_row(log_file_path, MAX_ROWS)
+            if await _append_sensor_row(log_file_path):
+                log_row_count += 1
+
+            if log_row_count > MAX_ROWS + COMPACT_OVERFLOW_ROWS:
+                compacted_rows = await _compact_log_file(log_file_path, MAX_ROWS)
+                if compacted_rows is not None:
+                    log_row_count = compacted_rows
 
         var.system_data.storage_task_timestamp = time.time()
 
