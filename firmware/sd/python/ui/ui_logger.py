@@ -206,6 +206,8 @@ def create_console_log(alt=False):
                
     def update_log_cb(timer):
         nonlocal log_label
+        if lv.scr_act() != scr:
+            return
 
         logger_label = "\n".join(var.logger_error)
 

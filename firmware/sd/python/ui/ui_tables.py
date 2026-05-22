@@ -65,6 +65,9 @@ def create_sensor_table(alt=False):
 
     # --- LVGL task: pull Python vars & update table ---
     def table_update_cb(task):
+        if lv.scr_act() != scr:
+            return
+
         # Read your Python variables here
         table.set_cell_value(0, 1, "{:.1f}".format(var.sensor_data.temp_aht21))
         table.set_cell_value(1, 1, "{:.1f}".format(var.sensor_data.temp_scd41))
@@ -269,6 +272,9 @@ def create_system_table(alt=False):
 
     # --- LVGL task: pull Python vars & update table ---
     def table_update_cb(task):
+        if lv.scr_act() != scr:
+            return
+
         # Read your Python variables here     
         table.set_cell_value(0, 1, var.system_data.status_wifi)
         table.set_cell_value(1, 1, var.system_data.status_ap)

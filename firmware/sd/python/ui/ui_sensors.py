@@ -243,6 +243,9 @@ def create_sensor_cards_screen(alt=False):
     )
 
     def update_cards_cb(task):
+        if lv.scr_act() != scr:
+            return
+
         for c in cards:
             v = safe_value(c["getter"]())
 

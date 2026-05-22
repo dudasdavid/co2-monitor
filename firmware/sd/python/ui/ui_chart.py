@@ -158,6 +158,8 @@ def create_co2_chart(alt=False):
         co2_last_label.set_pos(px - 35, py - 8)
 
     def update_co2_chart_cb(task):
+        if lv.scr_act() != scr:
+            return
 
         data = var.scd41_co2_history
         n = len(data)
