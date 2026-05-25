@@ -42,7 +42,6 @@ class SystemData:
         self.total_heap = 6900
         self.used_heap = 69
         self.bl_duty_percent = 650
-        self.i2c_devices = []
         self.i2c_status_scd41  = "NA"
         self.i2c_status_aht21  = "NA"
         self.i2c_status_ens160  = "NA"
@@ -67,24 +66,11 @@ class SystemData:
         self.idle_task_timestamp = 0
         self.serial_task_timestamp = 0
         self.storage_task_timestamp = 0
-        self.io_task_timestamp = 0
-        self.led_task_timestamp = 0
-        self.button = 2
 
-
-# SPS30 filter strength (lower = smoother but slower)
-sps30_alpha_slow = 0.03
-sps30_alpha_fast = 0.15
-
-aht21_temp_offset = 0
-aht21_humidity_offset = 0
 
 # Max number of samples you expect (24h at 5 min)
 CO2_HISTORY_MAX = 12 * 24
 
-scd41_co2_peak_ppm = 400
-scd41_co2_threshold = 1800
-scd41_co2_detected = 0
 scd41_co2_history = [
     500, 595, 700, 795, 880, 920, 950, 950,
     922, 890, 838, 800, 760, 722, 688, 660,
@@ -94,14 +80,6 @@ scd41_co2_history = [
     1795, 1791, 1786, 1780, 1773, 1765, 1756, 1746
 ]
 
-scd41_co2_max_history_samples = 60
-
-history_loaded = False
-
-
-free_space = 0
-all_space = 0
- 
 sensor_data = SensorData()
 system_data = SystemData()
 
@@ -119,9 +97,6 @@ touch_start_x = 0
 touch_start_y = 0
 last_y = 0
 
-btn_left = None
-btn_right = None
-
 logger_paused = False
 logger_error = ["#ff0000 ERROR#: Sensor read failed!",
                 "#ffff00 WARN#: WiFi connection unstable!",
@@ -129,5 +104,4 @@ logger_error = ["#ff0000 ERROR#: Sensor read failed!",
                 "#00ffff DEBUG#: Debugging info here..."]
 logger_label_prev = ""
 
-ap_request = False
 wifi_connected = True
