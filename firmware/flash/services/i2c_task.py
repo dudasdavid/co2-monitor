@@ -1,6 +1,6 @@
 import uasyncio as asyncio
 import time
-from machine import Pin, I2C, RTC
+from machine import I2C, RTC
 from logger import Logger
 from drivers import veml7700 as veml7700_driver
 from drivers import ens160 as ens160_driver

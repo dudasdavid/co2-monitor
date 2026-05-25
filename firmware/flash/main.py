@@ -2,7 +2,6 @@ import sys
 import uasyncio as asyncio
 import pyb
 import os
-import sys
 import time
 from logger import Logger
 
@@ -26,7 +25,6 @@ def mount_sd_card():
             sd = pyb.SDCard()
             sd.info()
             os.mount(sd, '/sd')
-            sd_mounted = True
             log.info("SD card mounted at /sd")
             
         except Exception as e:
@@ -37,7 +35,6 @@ def mount_sd_card():
             sd.power(True)
             time.sleep(1)
             os.mount(sd, '/sd')
-            sd_mounted = True
             log.info("SD card mounted at /sd")
     else:
         log.info("SD card already mounted")

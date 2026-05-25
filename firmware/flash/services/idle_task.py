@@ -1,5 +1,4 @@
 import uasyncio as asyncio
-from machine import Pin
 import gc
 from logger import Logger
 import time

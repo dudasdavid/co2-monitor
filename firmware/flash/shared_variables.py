@@ -119,7 +119,6 @@ sps30_alpha_slow = 0.03
 sps30_alpha_fast = 0.15
 
 aht21_temp_offset = 0
-aht21_humidity_offset = 0
 
 # Max number of samples you expect (24h at 5 min)
 CO2_HISTORY_MAX = 12 * 24
@@ -128,7 +127,6 @@ scd41_co2_peak_ppm = 400
 scd41_co2_threshold = 1800
 scd41_co2_detected = 0
 scd41_co2_history = [400] # Must contain 1 placeholder element
-scd41_co2_max_history_samples = 60
 
 history_loaded = False
 
@@ -138,9 +136,6 @@ except:
     print("TZ offset cannot be read from persistent_config.py!")
     TZ_OFFSET = 0
 
-free_space = 0
-all_space = 0
- 
 sensor_data = SensorData()
 system_data = SystemData()
 
@@ -157,9 +152,6 @@ selected_alt = 0
 touch_start_x = 0
 touch_start_y = 0
 last_y = 0
-
-btn_left = None
-btn_right = None
 
 logger_paused = False
 logger_error = []

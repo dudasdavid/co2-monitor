@@ -1,6 +1,5 @@
 import uasyncio as asyncio
 from logger import Logger
-import time
 from ui import ui_generic
 
 # ---- Global variables ----
@@ -32,4 +31,4 @@ async def event_handler_task():
             await var.haptic_events.put(var.EVENT_FB_LONG_PRESS)
 
         else:
-            log.debug("Unknown event:", btn_name, event_type)
+            log.debug("Unknown event:", event_type)
