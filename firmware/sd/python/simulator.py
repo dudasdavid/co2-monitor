@@ -36,26 +36,28 @@ def main():
 
   from ui import ui_generic
   from ui import ui_chart
+  from ui import ui_sensors
+  from ui import ui_tables
+  from ui import ui_logger
 
+  # Load status bar on top layer
   top_layer = lv.layer_top()
-
   ui_generic.create_status_bar(top_layer)
 
-  # Test screen
-  scr1 = ui_chart.create_co2_chart(alt = False)
+  # Test screens
+  scr1 = ui_chart.create_co2_chart()
+  scr2 = ui_sensors.create_sensor_cards_screen()
+  scr3 = ui_tables.create_sensor_table()
+  scr4 = ui_tables.create_system_table()
+  scr5 = ui_logger.create_console_log()
+  scr6 = ui_generic.create_screen()
 
   lv.scr_load(scr1)
 
-  '''
-  scr = lv.obj()
-  label = lv.label(scr)
-  label.set_text("LVGL 7.11 sim works")
-  label.align(scr, lv.ALIGN.CENTER, 0, 0)
-  lv.scr_load(scr)
-  '''
+  # Update the status bar screen label
+  ui_generic.screen_label.set_text("Simulator")
 
   while True:
-      #SDL.check()
       lv.task_handler()
       time.sleep_ms(5)
 

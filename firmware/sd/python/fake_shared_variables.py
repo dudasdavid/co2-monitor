@@ -1,51 +1,47 @@
 
 class SensorData:
     def __init__(self):
-        self.temp_aht21 = 10.1
-        self.temp_scd41 = 10.2
-        self.temp_bmp280 = 10.3
-        self.humidity_aht21 = 69.1
-        self.humidity_scd41 = 96.1
-        self.co2_scd41 = 666
-        self.co2_rating_scd41 = "unknown"
-        self.eco2_ens160 = 999
-        self.eco2_rating_ens160 = "unknown"
-        self.tvoc_ens160 = 100
-        self.tvoc_rating_ens160 = "unknown"
-        self.aqi_ens160  = 1
-        self.aqi_rating_ens160 = "unknown"
-        self.pressure_bmp280 = 1001
-        self.lux_veml7700 = 222
-        self.pm10_sps30 = None
-        self.pm10_filtered_sps30 = None
-        self.pm10_rating_sps30 = "unknown"
-        self.pm4_sps30 = None
-        self.pm4_filtered_sps30 = None
-        self.pm4_rating_sps30 = "unknown"
-        self.pm2_5_sps30 = None
-        self.pm2_5_filtered_sps30 = None
-        self.pm2_5_rating_sps30 = "unknown"
-        self.pm1_sps30 = None
-        self.pm1_filtered_sps30 = None
-        self.pm1_rating_sps30 = "unknown"
+        self.temp_aht21 = 18.1
+        self.temp_scd41 = 19.2
+        self.temp_bmp280 = 18.5
+        self.humidity_aht21 = 59.1
+        self.humidity_scd41 = 69.2
+        self.co2_scd41 = 420
+        self.co2_rating_scd41 = "Excellent"
+        self.eco2_ens160 = 430
+        self.eco2_rating_ens160 = "Excellent"
+        self.tvoc_ens160 = 200
+        self.tvoc_rating_ens160 = "Good"
+        self.aqi_ens160  = 3
+        self.aqi_rating_ens160 = "Moderate"
+        self.pressure_bmp280 = 1021
+        self.lux_veml7700 = 252
+        self.pm10_sps30 = 140
+        self.pm10_rating_sps30 = "Poor"
+        self.pm4_sps30 = 100
+        self.pm4_rating_sps30 = "Unhealthy"
+        self.pm2_5_sps30 = 25
+        self.pm2_5_rating_sps30 = "Moderate"
+        self.pm1_sps30 = 10
+        self.pm1_rating_sps30 = "Good"
 
 
 class SystemData:
     def __init__(self):
-        self.time_ntp = "ESP32C3 is OFFLINE"
-        self.time_rtc = "2025-11-20 20:00:10"
-        self.time_local = "NA"
-        self.status_wifi = "ESP32C3 is OFFLINE"
-        self.status_ap = "ESP32C3 is OFFLINE"
-        self.status_mqtt = "ESP32C3 is OFFLINE"
-        self.status_sd = "Offline"
+        self.time_ntp = (2025, 11, 20, 0, 9, 32, 10)
+        self.time_rtc = (2025, 11, 20, 0, 9, 32, 10)
+        self.time_local = (2025, 11, 20, 0, 11, 32, 10)
+        self.status_wifi = "WiFi Connected | 192.168.1.69"
+        self.status_ap = "Disabled"
+        self.status_mqtt = "Remote"
+        self.status_sd = "Online"
         self.total_space_flash = 690
         self.used_space_flash = 69
         self.total_space_sd = 6900
         self.used_space_sd = 69
         self.total_heap = 6900
         self.used_heap = 69
-        self.bl_duty_percent = 34
+        self.bl_duty_percent = 650
         self.i2c_devices = []
         self.i2c_status_scd41  = "NA"
         self.i2c_status_aht21  = "NA"
@@ -61,8 +57,8 @@ class SystemData:
         self.bat_volt = 3.8
         self.dcdc_volt = 4.69
         self.ideal_diode_volt = 5.0
-        self.bat_percentage = 69
-        self.charging = False
+        self.bat_percentage = 100
+        self.charging = True
         self.feedback_led = [0,0,1000]
         self.adc_task_timestamp = 0
         self.backlight_task_timestamp = 0
@@ -89,12 +85,19 @@ CO2_HISTORY_MAX = 12 * 24
 scd41_co2_peak_ppm = 400
 scd41_co2_threshold = 1800
 scd41_co2_detected = 0
-scd41_co2_history = [400] # Must contain 1 placeholder element
+scd41_co2_history = [
+    500, 595, 700, 795, 880, 920, 950, 950,
+    922, 890, 838, 800, 760, 722, 688, 660,
+    638, 622, 610, 603, 600, 606, 620, 642,
+    672, 710, 757, 813, 878, 952, 1035, 1127,
+    1228, 1338, 1457, 1585, 1720, 1760, 1800, 1798,
+    1795, 1791, 1786, 1780, 1773, 1765, 1756, 1746
+]
+
 scd41_co2_max_history_samples = 60
 
 history_loaded = False
 
-TZ_OFFSET = 2 * 3600 # seconds
 
 free_space = 0
 all_space = 0
@@ -120,14 +123,11 @@ btn_left = None
 btn_right = None
 
 logger_paused = False
-logger_error = []
+logger_error = ["#ff0000 ERROR#: Sensor read failed!",
+                "#ffff00 WARN#: WiFi connection unstable!",
+                "#00ff00 INFO#: System running smoothly!",
+                "#00ffff DEBUG#: Debugging info here..."]
 logger_label_prev = ""
 
 ap_request = False
-wifi_connected = False
-
-EVENT_FB_SWIPE_LEFT = 1
-EVENT_FB_SWIPE_RIGHT = 2
-EVENT_FB_LONG_PRESS = 3
-EVENT_BUTTON_PRESS = 1
-EVENT_BUTTON_LONG_PRESS = 2
+wifi_connected = True
