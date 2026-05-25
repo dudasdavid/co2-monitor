@@ -1,7 +1,12 @@
 import lvgl as lv
 
+SIMULATOR = False
+
 # ---- Global variables ----
-import shared_variables as var
+if SIMULATOR:
+    import fake_shared_variables as var
+else:
+    import shared_variables as var
 
 SCREEN_H = 272
 SCREEN_W = 480

@@ -3,7 +3,10 @@ from math import ceil
 from ui import ui_generic as ui
 
 # ---- Global variables ----
-import shared_variables as var
+if ui.SIMULATOR:
+    import fake_shared_variables as var
+else:
+    import shared_variables as var
 
 def create_console_log(alt=False):
     
