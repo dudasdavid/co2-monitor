@@ -25,8 +25,6 @@ BREATH_MIN_VISIBLE  = 0.5
 BREATH_SCALE_DARK   = 1 / 10
 BREATH_SCALE_BRIGHT = 1 / 3
 
-SMOOTH_ALPHA = 0.35
-
 # breathing table, values 1..100
 BREATH_TABLE = [
     0,0,0,0,0,1,1,1,2,2,3,4,5,6,7,8,
